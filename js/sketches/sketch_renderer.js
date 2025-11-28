@@ -15,6 +15,12 @@
             }
 
             computeLayout([]);
+            
+            // Initialize personality cards visualization
+            if (window.VizPersonalityCards && window.VizPersonalityCards.setup) {
+                window.VizPersonalityCards.setup(manager.p5);
+            }
+            
             return Promise.resolve(manager.data);
         },
 
@@ -31,12 +37,20 @@
                 return;
             }
 
-            if (ai >= 4 && ai < 7) {
+            // Asset Personality Cards (indices 4-9)
+            if (ai >= 4 && ai <= 9) {
+                if (window.VizPersonalityCards) {
+                    window.VizPersonalityCards.draw(p, manager, ai, progress);
+                }
+                return;
+            }
+
+            if (ai >= 10 && ai < 12) {
                 window.VizScatter.draw(p, manager, ai, progress);
                 return;
             }
 
-            if (ai === 7) {
+            if (ai === 12) {
                 window.VizBar.draw(p, manager, ai, progress);
                 return;
             }
