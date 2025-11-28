@@ -24,7 +24,7 @@
         },
         {
             id: 'oil',
-            title: 'Oil (WTI)',
+            title: 'Oil',
             subtitle: 'The mood-swinging drama uncle.',
             description: 'Oil reacts to war, supply cuts, and global demand. It can skyrocket or collapse depending on geopolitics.',
             color: '#2C3E50',
@@ -354,10 +354,23 @@
 
         draw: function (p, manager, activeIndex, progress) {
             // Determine which card to show based on activeIndex
-            // We'll map activeIndex to card indices
-            // For example: activeIndex 2-6 could map to cards 0-4
-            const startIndex = 2; // Start showing cards at activeIndex 2
-            const mappedIndex = Math.max(0, Math.min(CARDS.length - 1, activeIndex - startIndex));
+            // activeIndex 4 = intro (show card 0 - Bitcoin)
+            // activeIndex 5 = Bitcoin (card 0)
+            // activeIndex 6 = Gold (card 1)
+            // activeIndex 7 = Oil (card 2)
+            // activeIndex 8 = S&P 500 (card 3)
+            // activeIndex 9 = USD Index (card 4)
+            
+            let mappedIndex;
+            if (activeIndex === 4) {
+                mappedIndex = 0; // Show Bitcoin on intro
+            } else if (activeIndex >= 5 && activeIndex <= 9) {
+                mappedIndex = activeIndex - 5; // Map 5->0, 6->1, 7->2, 8->3, 9->4
+            } else {
+                mappedIndex = 0; // Default to first card
+            }
+            
+            mappedIndex = Math.max(0, Math.min(CARDS.length - 1, mappedIndex));
 
             // Handle transitions
             if (mappedIndex !== currentCardIndex && !isTransitioning) {
@@ -365,6 +378,7 @@
                 nextCardIndex = mappedIndex;
                 fadeProgress = 0;
             }
+
 
             if (isTransitioning) {
                 fadeProgress += 0.05;
