@@ -26,6 +26,11 @@
                 return;
             }
 
+            if (ai === 2 || ai === 3) {
+                window.VizBubbles.draw(p, manager, ai, progress);
+                return;
+            }
+
             if (ai >= 4 && ai < 7) {
                 window.VizScatter.draw(p, manager, ai, progress);
                 return;
@@ -35,6 +40,27 @@
                 window.VizBar.draw(p, manager, ai, progress);
                 return;
             }
+        },
+
+        handleMousePressed: function (p, manager, ai) {
+            if (ai === 2 || ai === 3) {
+                return window.VizBubbles.handleMousePressed(p, manager);
+            }
+            return false;
+        },
+
+        handleMouseDragged: function (p, manager, ai) {
+            if (ai === 2 || ai === 3) {
+                return window.VizBubbles.handleMouseDragged(p, manager);
+            }
+            return false;
+        },
+
+        handleMouseReleased: function (p, manager, ai) {
+            if (ai === 2 || ai === 3) {
+                return window.VizBubbles.handleMouseReleased(p, manager);
+            }
+            return false;
         }
     };
 })();

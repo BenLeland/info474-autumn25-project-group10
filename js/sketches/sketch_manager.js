@@ -9,8 +9,8 @@ function startP5() {
     // --- Sketch manager ----------------------------------------------------
     function SketchManager() {
         // core layout settings (canvas size only)
-        this.width = 600; // content width
-        this.height = 520; // content height
+        this.width = 1120; // content width (increased for bubbles viz)
+        this.height = 560; // content height (increased for bubbles viz)
         this.margin = { top: 0, left: 80, bottom: 40, right: 10 };
         this.canvasWidth = this.width + this.margin.left + this.margin.right;
         this.canvasHeight = this.height + this.margin.top + this.margin.bottom;
@@ -35,6 +35,27 @@ function startP5() {
             p.draw = function () {
                 p.background(255);
                 self.draw(p);
+            };
+
+            p.mousePressed = function () {
+                var ai = self.state.activeIndex || 0;
+                if (localRenderer.handleMousePressed) {
+                    localRenderer.handleMousePressed(p, self, ai);
+                }
+            };
+
+            p.mouseDragged = function () {
+                var ai = self.state.activeIndex || 0;
+                if (localRenderer.handleMouseDragged) {
+                    localRenderer.handleMouseDragged(p, self, ai);
+                }
+            };
+
+            p.mouseReleased = function () {
+                var ai = self.state.activeIndex || 0;
+                if (localRenderer.handleMouseReleased) {
+                    localRenderer.handleMouseReleased(p, self, ai);
+                }
             };
         };
 
