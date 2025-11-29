@@ -56,24 +56,24 @@
                 }
             }
 
-            p.loadTable('data/Bitcoin Historical Data.csv', 'csv', 'header', function(table) {
+            p.loadTable('data/Bitcoin Historical Data.csv', 'csv', 'header', (table) => {
                 self.assets.bitcoin.data = self.parseTable(table);
                 checkAllLoaded();
             });
-            p.loadTable('data/S&P 500 Historical Data.csv', 'csv', 'header', function(table) {
-                self.assets.sp500.data = self.parseTable(table);
+            p.loadTable('data/S&P 500 Historical Data.csv', 'csv', 'header', (table) => {
+                this.assets.sp500.data = this.parseTable(table);
                 checkAllLoaded();
             });
-            p.loadTable('data/Gold Futures Historical Data.csv', 'csv', 'header', function(table) {
-                self.assets.gold.data = self.parseTable(table);
+            p.loadTable('data/Gold Futures Historical Data.csv', 'csv', 'header', (table) => {
+                this.assets.gold.data = this.parseTable(table);
                 checkAllLoaded();
             });
-            p.loadTable('data/Crude Oil WTI Futures Historical Data.csv', 'csv', 'header', function(table) {
-                self.assets.oil.data = self.parseTable(table);
+            p.loadTable('data/Crude Oil WTI Futures Historical Data.csv', 'csv', 'header', (table) => {
+                this.assets.oil.data = this.parseTable(table);
                 checkAllLoaded();
             });
-            p.loadTable('data/US Dollar Index Historical Data.csv', 'csv', 'header', function(table) {
-                self.assets.usd.data = self.parseTable(table);
+            p.loadTable('data/US Dollar Index Historical Data.csv', 'csv', 'header', (table) => {
+                this.assets.usd.data = this.parseTable(table);
                 checkAllLoaded();
             });
         },
@@ -93,6 +93,11 @@
                 });
             }
             return data.reverse();
+        },
+
+        parseDate: function(dateStr) {
+            var parts = dateStr.split('/');
+            return new Date(parts[2], parts[0] - 1, parts[1]);
         },
 
         draw: function (p, manager, ai, progress) {
@@ -116,14 +121,14 @@
         // },
 
         drawTimeLine: function(p, manager) {
-            var cx = (manager.offsetX || 0) + (manager.width || 600) / 2;
-            var cy = (manager.offsetY || 0) + (manager.height || 520) / 3 + 50;
+            var x = manager.canvasWidth / 2;
+            var y = manager.canvasHeight / 2;
 
             p.stroke(0);
             p.strokeWeight(1);
-            p.line(cx - 350, cy, cx + 275, cy);
-            p.line(cx - 350, cy - 15, cx - 350, cy + 15);
-            p.line(cx + 275, cy - 15, cx + 275, cy + 15);
+            p.line(x - 350, y, x + 275, y);
+            p.line(x - 350, y - 15, x - 350, y + 15);
+            p.line(x + 275, y - 15, x + 275, y + 15);
         },
 
         populateTimeTicks: function(p) {
