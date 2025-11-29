@@ -4,27 +4,32 @@
             bitcoin: { 
                 name: 'Bitcoin', 
                 data: [], 
-                hasData: false
+                hasData: false,
+                scale: 20000
             },
             sp500: { 
                 name: 'S&P 500', 
                 data: [], 
-                hasData: false
+                hasData: false,
+                scale: 650
             },
             gold: { 
                 name: 'Gold', 
                 data: [], 
-                hasData: false
+                hasData: false,
+                scale: 130
             },
             oil: { 
                 name: 'Oil',  
                 data: [], 
-                hasData: false
+                hasData: false,
+                scale: 20
             },
             usd: { 
                 name: 'USD Index',  
                 data: [], 
-                hasData: false
+                hasData: false,
+                scale: 5
             }
         },
 
@@ -38,10 +43,25 @@
         
         dataLoaded: false,
 
+        timeTicks: [],
+        bars: [],
+
+        assetKeys: null,
+        selectedAsset: null,
+
+        dropdownOpen: false,
+        dropdownX: 20,
+        dropdownY: 20,
+        dropdownW: 200,
+        dropdownH: 30,
+
         preload: function(p, manager) {
             if (!this.dataLoaded && Object.keys(this.assets).every(key => this.assets[key].data.length === 0)) {
                 this.loadData(p, manager);
             }
+
+            this.assetKeys = Object.keys(this.assets);
+            this.selectedAsset = this.assetKeys[0];
         },
 
         loadData: function(p, manager) {
@@ -56,24 +76,24 @@
                 }
             }
 
-            p.loadTable('data/Bitcoin Historical Data.csv', 'csv', 'header', function(table) {
-                self.assets.bitcoin.data = self.parseTable(table);
+            p.loadTable('data/Bitcoin-Historical-Data-Monthly.csv', 'csv', 'header', (table) => {
+                this.assets.bitcoin.data = this.parseTable(table);
                 checkAllLoaded();
             });
-            p.loadTable('data/S&P 500 Historical Data.csv', 'csv', 'header', function(table) {
-                self.assets.sp500.data = self.parseTable(table);
+            p.loadTable('data/S&P-500-Historical-Data-Monthly.csv', 'csv', 'header', (table) => {
+                this.assets.sp500.data = this.parseTable(table);
                 checkAllLoaded();
             });
-            p.loadTable('data/Gold Futures Historical Data.csv', 'csv', 'header', function(table) {
-                self.assets.gold.data = self.parseTable(table);
+            p.loadTable('data/Gold-Historical-Data-Monthly.csv', 'csv', 'header', (table) => {
+                this.assets.gold.data = this.parseTable(table);
                 checkAllLoaded();
             });
-            p.loadTable('data/Crude Oil WTI Futures Historical Data.csv', 'csv', 'header', function(table) {
-                self.assets.oil.data = self.parseTable(table);
+            p.loadTable('data/Crude-Oil-Historical-Data-Monthly.csv', 'csv', 'header', (table) => {
+                this.assets.oil.data = this.parseTable(table);
                 checkAllLoaded();
             });
-            p.loadTable('data/US Dollar Index Historical Data.csv', 'csv', 'header', function(table) {
-                self.assets.usd.data = self.parseTable(table);
+            p.loadTable('data/US-Dollar-Historical-Data-Monthly.csv', 'csv', 'header', (table) => {
+                this.assets.usd.data = this.parseTable(table);
                 checkAllLoaded();
             });
         },
@@ -95,6 +115,11 @@
             return data.reverse();
         },
 
+        parseDate: function(dateStr) {
+            var parts = dateStr.split('/');
+            return new Date(parts[2], parts[0] - 1, parts[1]);
+        },
+
         draw: function (p, manager, ai, progress) {
             if (!this.dataLoaded) {
                 this.preload(p, manager);
@@ -105,105 +130,140 @@
                 return;
             }
 
+            
             this.drawTimeLine(p, manager);
-            // this.drawTimeTicks(p);
-            // drawBars(p);
+            this.drawTimeTicks(p, manager);
+            this.drawBars(p, manager);
             // drawEvents(p);
+            this.drawDropDown(p, manager);
         },
 
-        // windowResized: function(p) {
-        //     p.resizeCanvas(p.windowWidth, p.windowHeight);
-        // },
-
         drawTimeLine: function(p, manager) {
-            var cx = (manager.offsetX || 0) + (manager.width || 600) / 2;
-            var cy = (manager.offsetY || 0) + (manager.height || 520) / 3 + 50;
+            var x = manager.canvasWidth / 2;
+            var y = manager.canvasHeight / 2;
 
             p.stroke(0);
             p.strokeWeight(1);
-            p.line(cx - 350, cy, cx + 275, cy);
-            p.line(cx - 350, cy - 15, cx - 350, cy + 15);
-            p.line(cx + 275, cy - 15, cx + 275, cy + 15);
+            p.line(x - 550, y, x + 350, y);
+            p.line(x - 550, y - 15, x - 550, y + 15);
+            p.line(x + 350, y - 15, x + 350, y + 15);
         },
 
-        populateTimeTicks: function(p) {
-            let count = Math.floor(p.random(15, 21));
+        generateTicks: function(p, manager) {
+            const dataCount = this.assets[this.selectedAsset].data.length;
+            const startX = manager.canvasWidth / 2 - 550;
+            const endX = manager.canvasWidth / 2 + 350;
+            const totalWidth = endX - startX;
 
-            let startX = p.windowWidth / 2 - 325;
-            let endX = p.windowWidth / 2 + 575;
-            let spacing = (endX - startX) / (count - 1);
+            for (let i = 0; i < dataCount; i++) {
+                const t = i / (dataCount - 1);
+                const x = startX + t * totalWidth;
 
-            for (let i = 0; i < count; i++) {
-                timeTicks.push(startX + i * spacing);
+                this.timeTicks.push(x);
             }
         },
 
-        populateDates: function(p) {
-            let startYear = 2020;
-            let startMonth = 1;
-
-            for (let i = 0; i < timeTicks.length; i++) {
-                let month = (startMonth + i - 1) % 12 + 1;
-                let year = startYear + Math.floor((startMonth + i - 1) / 12);
-
-                const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-                let label = monthNames[month - 1] + " " + year;
-
-                tickDates.push(label);
+        drawTimeTicks: function(p, manager) {
+            if (!this.timeTicks || this.timeTicks.length === 0) {
+                this.generateTicks(p, manager);
             }
-        },
 
-        drawTimeTicks: function(p) {
-            for (let i = 0; i < timeTicks.length; i++) {
-                let tickX = timeTicks[i];
+            const y = manager.canvasHeight / 2;
+
+            for (let i = 0; i < this.timeTicks.length; i++) {
+                let tickX = this.timeTicks[i];
 
                 p.stroke(0);
                 p.strokeWeight(1);
-                p.line(tickX, p.windowHeight / 2 - 10, tickX, p.windowHeight / 2 + 10);
+                p.line(tickX, y - 7, tickX, y + 7);
+            }
 
-                p.push();
-                p.translate(tickX, p.windowHeight / 2 + 15);
-                p.rotate(p.HALF_PI);
-                p.noStroke();
-                p.fill(255);
-                p.textSize(10);
-                p.textAlign(p.LEFT, p.CENTER);
-                p.text(tickDates[i], 5, 0);
-                p.pop();
+            p.strokeWeight(0);
+            p.textSize(15);
+            p.text("Jan,", manager.canvasWidth / 2 - 590, manager.canvasHeight / 2 - 10)
+            p.text("2013", manager.canvasWidth / 2 - 593, manager.canvasHeight / 2 + 10)
+            p.text("Nov,", manager.canvasWidth / 2 + 357, manager.canvasHeight / 2 - 10)
+            p.text("2025", manager.canvasWidth / 2 + 355, manager.canvasHeight / 2 + 10)
+        },
+
+        drawBars: function(p, manager) {
+            const asset = this.assets[this.selectedAsset]
+            const data = asset.data;
+            const y = manager.canvasHeight / 2;
+
+            for (let i = 0; i < data.length - 1; i++) {
+                const x1 = this.timeTicks[i];
+                const x2 = this.timeTicks[i + 1];
+                const midX = (x1 + x2) / 2;
+
+                const priceNow = data[i].price;
+                const priceNext = data[i + 1].price;
+                const change = priceNext - priceNow;
+
+                const barLength = p.map(Math.abs(change), 0, asset.scale, 0, 300);
+
+                p.stroke(change >= 0 ? 'green' : 'red');
+                p.strokeWeight(4);
+
+                p.line(midX, y, midX, y - barLength * Math.sign(change));
             }
         },
 
-    //     populateBars: function(p) {
-    //         for (let i = 0; i < timeTicks.length - 1; i++) {
-    //             let x1 = timeTicks[i];
-    //             let x2 = timeTicks[i + 1];
-    //             let midX = (x1 + x2) / 2;
+        drawDropDown: function(p, manager) {   
+            // Draw dropdown box
+            p.fill(255);
+            p.stroke(0);
+            p.strokeWeight(1);
+            p.rect(this.dropdownX, this.dropdownY, 200, 30);
 
-    //             let change = p.random(-20, 20);
+            // Selected text
+            p.fill(0);
+            p.textAlign(p.LEFT, p.CENTER);
+            p.textSize(16);
+            p.strokeWeight(1);
+            p.text(this.assets[this.selectedAsset].name, this.dropdownX + 10, this.dropdownY + this.dropdownH/2);
 
-    //             bars.push({x: midX, y: p.windowHeight / 2, change: change});
-    //         }
-    //     },
+            if (this.dropdownOpen) {
+                for (let i = 0; i < this.assetKeys.length; i++) {
+                    let y = this.dropdownY + this.dropdownH * (i + 1);
 
-    //     drawBars: function(p) {
-    //         for (let i = 0; i < bars.length; i++) {
-    //             let bar = bars[i];
-    //             let barLength = p.map(Math.abs(bar.change), 0, 20, 0, 300);
+                    p.fill(240);
+                    p.strokeWeight(1);
+                    p.rect(this.dropdownX, y, this.dropdownW, this.dropdownH);
 
-    //             p.stroke(bar.change >= 0 ? 'green' : 'red');
-    //             p.strokeWeight(38);
-    //             p.line(bar.x, bar.y, bar.x, bar.y - barLength * Math.sign(bar.change));
-    //         }
-    //     },
+                    p.fill(0);
+                    p.strokeWeight(1);
+                    p.text(this.assets[this.assetKeys[i]].name, this.dropdownX + 10, y + this.dropdownH/2);
+                }
+            }
 
-    //     populateEvents: function(p) {
-    //         let count = Math.floor(p.random(3, 6));
+            // Interaction
+            p.mousePressed = () => {
+                // Click on dropdown header
+                if (p.mouseX > this.dropdownX && p.mouseX < this.dropdownX + this.dropdownW &&
+                    p.mouseY > this.dropdownY && p.mouseY < this.dropdownY + this.dropdownH) {
+                    this.dropdownOpen = !this.dropdownOpen;
+                    return;
+                }
 
-    //         for (let i = 0; i < count; i++) {
-    //             let x = timeTicks[Math.floor(p.random(timeTicks.length))];
-    //             events.push({x: x, y: p.windowHeight / 2});
-    //         }
-    //     },
+                // Click on one of the items
+                if (this.dropdownOpen) {
+                    for (let i = 0; i < this.assetKeys.length; i++) {
+                        let y = this.dropdownY + this.dropdownH * (i + 1);
+
+                        if (p.mouseX > this.dropdownX && p.mouseX < this.dropdownX + this.dropdownW &&
+                            p.mouseY > y && p.mouseY < y + this.dropdownH) {
+
+                            this.selectedAsset = this.assetKeys[i];
+                            this.dropdownOpen = false;
+                            return;
+                        }
+                    }
+                }
+
+                dropdownOpen = false;
+            };
+        }
 
     //     drawEvents: function(p) {
     //         for (let i = 0; i < events.length; i++) {
