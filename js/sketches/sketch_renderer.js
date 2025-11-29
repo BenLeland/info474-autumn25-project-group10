@@ -32,42 +32,32 @@
                 return;
             }
 
-            if (ai === 2) {
-                window.CurrencyValueOverTime.draw(p, manager, ai, progress);
-                return;
-            }
-
-            if (ai === 3 || ai === 4) {
+            if (ai === 2 || ai === 3) {
                 window.VizBubbles.draw(p, manager, ai, progress);
                 return;
             }
 
             // Asset Personality Cards (indices 4-9)
-            if (ai >= 5 && ai <= 10) {
+            if (ai >= 4 && ai <= 10) {
                 if (window.VizPersonalityCards) {
                     window.VizPersonalityCards.draw(p, manager, ai, progress);
                 }
                 return;
             }
 
-            if (ai >= 11 && ai < 13) {
-                window.VizScatter.draw(p, manager, ai, progress);
-                return;
-            }
-
-            if (ai === 13) {
-                window.VizBar.draw(p, manager, ai, progress);
-                return;
-            }
-
             // Custom scaffolds: map a couple new activeIndex values
-            if (ai === 14) {
+            if (ai === 11 || ai === 12) {
                 if (window.VizTimelineCustom) window.VizTimelineCustom.draw(p, manager, ai, progress);
                 return;
             }
 
-            if (ai === 15) {
+            if (ai === 13) {
                 if (window.VizSparklinesCustom) window.VizSparklinesCustom.draw(p, manager, ai, progress);
+                return;
+            }
+
+            if (ai === 14 || ai === 15) {
+                window.CurrencyValueOverTime.draw(p, manager, ai, progress);
                 return;
             }
         },
