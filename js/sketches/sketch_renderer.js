@@ -59,11 +59,28 @@
                 window.VizBar.draw(p, manager, ai, progress);
                 return;
             }
+
+            // Custom scaffolds: map a couple new activeIndex values
+            if (ai === 14) {
+                if (window.VizTimelineCustom) window.VizTimelineCustom.draw(p, manager, ai, progress);
+                return;
+            }
+
+            if (ai === 15) {
+                if (window.VizSparklinesCustom) window.VizSparklinesCustom.draw(p, manager, ai, progress);
+                return;
+            }
         },
 
         handleMousePressed: function (p, manager, ai) {
             if (ai === 3 || ai === 4) {
                 return window.VizBubbles.handleMousePressed(p, manager);
+            }
+            if (ai === 14 && window.VizTimelineCustom && window.VizTimelineCustom.handleMousePressed) {
+                return window.VizTimelineCustom.handleMousePressed(p, manager);
+            }
+            if (ai === 15 && window.VizSparklinesCustom && window.VizSparklinesCustom.handleMousePressed) {
+                return window.VizSparklinesCustom.handleMousePressed(p, manager);
             }
             return false;
         },
@@ -72,12 +89,24 @@
             if (ai === 3 || ai === 4) {
                 return window.VizBubbles.handleMouseDragged(p, manager);
             }
+            if (ai === 14 && window.VizTimelineCustom && window.VizTimelineCustom.handleMouseDragged) {
+                return window.VizTimelineCustom.handleMouseDragged(p, manager);
+            }
+            if (ai === 15 && window.VizSparklinesCustom && window.VizSparklinesCustom.handleMouseDragged) {
+                return window.VizSparklinesCustom.handleMouseDragged(p, manager);
+            }
             return false;
         },
 
         handleMouseReleased: function (p, manager, ai) {
             if (ai === 3 || ai === 4) {
                 return window.VizBubbles.handleMouseReleased(p, manager);
+            }
+            if (ai === 14 && window.VizTimelineCustom && window.VizTimelineCustom.handleMouseReleased) {
+                return window.VizTimelineCustom.handleMouseReleased(p, manager);
+            }
+            if (ai === 15 && window.VizSparklinesCustom && window.VizSparklinesCustom.handleMouseReleased) {
+                return window.VizSparklinesCustom.handleMouseReleased(p, manager);
             }
             return false;
         }

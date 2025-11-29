@@ -45,34 +45,35 @@
         },
 
         loadData: function(p, manager) {
+            var self = this;
             var loadedCount = 0;
             var totalFiles = 5;
 
             function checkAllLoaded() {
                 loadedCount++;
                 if (loadedCount === totalFiles) {
-                    this.dataLoaded = true;
+                    self.dataLoaded = true;
                 }
             }
 
             p.loadTable('data/Bitcoin Historical Data.csv', 'csv', 'header', function(table) {
-                this.assets.bitcoin.data = this.parseTable(table);
+                self.assets.bitcoin.data = self.parseTable(table);
                 checkAllLoaded();
             });
             p.loadTable('data/S&P 500 Historical Data.csv', 'csv', 'header', function(table) {
-                this.assets.sp500.data = this.parseTable(table);
+                self.assets.sp500.data = self.parseTable(table);
                 checkAllLoaded();
             });
             p.loadTable('data/Gold Futures Historical Data.csv', 'csv', 'header', function(table) {
-                this.assets.gold.data = this.parseTable(table);
+                self.assets.gold.data = self.parseTable(table);
                 checkAllLoaded();
             });
             p.loadTable('data/Crude Oil WTI Futures Historical Data.csv', 'csv', 'header', function(table) {
-                this.assets.oil.data = this.parseTable(table);
+                self.assets.oil.data = self.parseTable(table);
                 checkAllLoaded();
             });
             p.loadTable('data/US Dollar Index Historical Data.csv', 'csv', 'header', function(table) {
-                this.assets.usd.data = this.parseTable(table);
+                self.assets.usd.data = self.parseTable(table);
                 checkAllLoaded();
             });
         },
