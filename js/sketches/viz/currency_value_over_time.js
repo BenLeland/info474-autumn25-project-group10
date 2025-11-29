@@ -177,6 +177,13 @@
                 p.strokeWeight(1);
                 p.line(tickX, y - 7, tickX, y + 7);
             }
+
+            p.strokeWeight(0);
+            p.textSize(15);
+            p.text("Jan,", manager.canvasWidth / 2 - 590, manager.canvasHeight / 2 - 10)
+            p.text("2013", manager.canvasWidth / 2 - 593, manager.canvasHeight / 2 + 10)
+            p.text("Nov,", manager.canvasWidth / 2 + 357, manager.canvasHeight / 2 - 10)
+            p.text("2025", manager.canvasWidth / 2 + 355, manager.canvasHeight / 2 + 10)
         },
 
         drawBars: function(p, manager) {
@@ -257,15 +264,6 @@
                 dropdownOpen = false;
             };
         }
-
-    //     populateEvents: function(p) {
-    //         let count = Math.floor(p.random(3, 6));
-
-    //         for (let i = 0; i < count; i++) {
-    //             let x = timeTicks[Math.floor(p.random(timeTicks.length))];
-    //             events.push({x: x, y: p.windowHeight / 2});
-    //         }
-    //     },
 
     //     drawEvents: function(p) {
     //         for (let i = 0; i < events.length; i++) {
