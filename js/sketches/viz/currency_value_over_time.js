@@ -38,6 +38,8 @@
         
         dataLoaded: false,
 
+        timeTicks: [],
+
         preload: function(p, manager) {
             if (!this.dataLoaded && Object.keys(this.assets).every(key => this.assets[key].data.length === 0)) {
                 this.loadData(p, manager);
@@ -56,8 +58,8 @@
                 }
             }
 
-            p.loadTable('data/Bitcoin Historical Data.csv', 'csv', 'header', (table) => {
-                self.assets.bitcoin.data = self.parseTable(table);
+            p.loadTable('data/Bitcoin-Historical-Data-Monthly.csv', 'csv', 'header', (table) => {
+                this.assets.bitcoin.data = this.parseTable(table);
                 checkAllLoaded();
             });
             p.loadTable('data/S&P 500 Historical Data.csv', 'csv', 'header', (table) => {
@@ -111,14 +113,10 @@
             }
 
             this.drawTimeLine(p, manager);
-            // this.drawTimeTicks(p);
+            this.drawTimeTicks(p, manager);
             // drawBars(p);
             // drawEvents(p);
         },
-
-        // windowResized: function(p) {
-        //     p.resizeCanvas(p.windowWidth, p.windowHeight);
-        // },
 
         drawTimeLine: function(p, manager) {
             var x = manager.canvasWidth / 2;
@@ -131,50 +129,33 @@
             p.line(x + 275, y - 15, x + 275, y + 15);
         },
 
-        populateTimeTicks: function(p) {
-            let count = Math.floor(p.random(15, 21));
+        generateTicks: function(p, manager) {
+            const dataCount = this.assets.bitcoin.data.length;
+            const startX = manager.canvasWidth / 2 - 350;
+            const endX = manager.canvasWidth / 2 + 275;
+            const totalWidth = endX - startX;
 
-            let startX = p.windowWidth / 2 - 325;
-            let endX = p.windowWidth / 2 + 575;
-            let spacing = (endX - startX) / (count - 1);
+            for (let i = 0; i < dataCount; i++) {
+                const t = i / (dataCount - 1);
+                const x = startX + t * totalWidth;
 
-            for (let i = 0; i < count; i++) {
-                timeTicks.push(startX + i * spacing);
+                this.timeTicks.push(x);
             }
         },
 
-        populateDates: function(p) {
-            let startYear = 2020;
-            let startMonth = 1;
-
-            for (let i = 0; i < timeTicks.length; i++) {
-                let month = (startMonth + i - 1) % 12 + 1;
-                let year = startYear + Math.floor((startMonth + i - 1) / 12);
-
-                const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-                let label = monthNames[month - 1] + " " + year;
-
-                tickDates.push(label);
+        drawTimeTicks: function(p, manager) {
+            if (!this.timeTicks || this.timeTicks.length === 0) {
+                this.generateTicks(p, manager);
             }
-        },
 
-        drawTimeTicks: function(p) {
-            for (let i = 0; i < timeTicks.length; i++) {
-                let tickX = timeTicks[i];
+            const y = manager.canvasHeight / 2;
+
+            for (let i = 0; i < this.timeTicks.length; i++) {
+                let tickX = this.timeTicks[i];
 
                 p.stroke(0);
                 p.strokeWeight(1);
-                p.line(tickX, p.windowHeight / 2 - 10, tickX, p.windowHeight / 2 + 10);
-
-                p.push();
-                p.translate(tickX, p.windowHeight / 2 + 15);
-                p.rotate(p.HALF_PI);
-                p.noStroke();
-                p.fill(255);
-                p.textSize(10);
-                p.textAlign(p.LEFT, p.CENTER);
-                p.text(tickDates[i], 5, 0);
-                p.pop();
+                p.line(tickX, y - 10, tickX, y + 10);
             }
         },
 
