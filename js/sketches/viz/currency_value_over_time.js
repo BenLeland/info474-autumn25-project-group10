@@ -134,7 +134,7 @@
             this.drawTimeLine(p, manager);
             this.drawTimeTicks(p, manager);
             this.drawBars(p, manager);
-            // drawEvents(p);
+            this.drawEvents(p, manager);
             this.drawDropDown(p, manager);
         },
 
@@ -263,16 +263,41 @@
 
                 dropdownOpen = false;
             };
-        }
+        },
 
-    //     drawEvents: function(p) {
-    //         for (let i = 0; i < events.length; i++) {
-    //             let event = events[i];
-    //             p.fill(200)
-    //             p.stroke(255);
-    //             p.strokeWeight(1);
-    //             p.circle(event.x, event.y, 8);
-    //         }
-    //     }
+        drawEvents: function(p, manager) {
+            const events = this.events;
+            const data = this.assets[this.selectedAsset].data;
+
+            if (!data || data.length === 0 || !this.timeTicks.length) return;
+
+            // Timeline boundaries
+            const startDate = data[0].date;
+            const endDate = data[data.length - 1].date;
+            const startX = this.timeTicks[0];
+            const endX = this.timeTicks[this.timeTicks.length - 1];
+            const lineY = manager.canvasHeight / 2;
+
+            // Draw dots
+            for (let i = 0; i < events.length; i++) {
+                const ev = events[i];
+                const evDate = this.parseDate(ev.date);
+
+                // Convert date → position percentage
+                const t = (evDate - startDate) / (endDate - startDate);
+
+                // Clamp between 0 and 1
+                const tClamped = Math.max(0, Math.min(1, t));
+
+                // Convert percentage → X position
+                const x = startX + tClamped * (endX - startX);
+
+                // Draw dot
+                p.fill("gray");
+                p.stroke(0);
+                p.strokeWeight(1);
+                p.circle(x, lineY, 10);
+            }
+        }
     }
 })();
