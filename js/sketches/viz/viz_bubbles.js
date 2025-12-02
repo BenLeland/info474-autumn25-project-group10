@@ -508,12 +508,13 @@
             var sliderWidth = manager.canvasWidth - 200;
             var sliderHeight = 10;
             
-            // Check play button
+            // Check play button - increased click radius for better usability
             var buttonX = 40;
             var buttonY = sliderY + 5;
             var buttonSize = 30;
             
-            if (p.dist(p.mouseX, p.mouseY, buttonX, buttonY) < buttonSize / 2) {
+            // Increased click radius from buttonSize/2 to buttonSize/2 + 5
+            if (p.dist(p.mouseX, p.mouseY, buttonX, buttonY) < buttonSize / 2 + 5) {
                 this.isPlaying = !this.isPlaying;
                 return true;
             }
