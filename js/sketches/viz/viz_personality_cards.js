@@ -248,7 +248,7 @@
 
         // Metrics section
         if (analytics) {
-            const metricsY = 370;
+            const metricsY = 350; // Moved up from 370
             const metricX = 40;
             const metricSpacing = 70;
 
@@ -316,10 +316,15 @@
             }
 
             // Sparkline
-            const sparklineY = 560;
-            const sparklineHeight = 80;
+            const sparklineY = 530; // Moved up from 560
+            const sparklineHeight = 70; // Reduced from 80
             const sparklinePadding = 40;
             const sparklineWidth = cardWidth - sparklinePadding * 2;
+
+            // Draw background for sparkline area
+            p.fill(250, 250, 250, textAlpha * 0.5);
+            p.noStroke();
+            p.rect(sparklinePadding - 5, sparklineY - 30, sparklineWidth + 10, sparklineHeight + 35, 5);
 
             p.textAlign(p.CENTER, p.TOP);
             p.textSize(11);
@@ -391,9 +396,9 @@
 
             // Calculate card dimensions and position
             const maxWidth = 500;
-            const maxHeight = 700;
+            const maxHeight = 750; // Increased from 700 to fit all content
             const cardWidth = Math.min(maxWidth, manager.width * 0.8);
-            const cardHeight = Math.min(maxHeight, manager.height * 0.9);
+            const cardHeight = Math.min(maxHeight, manager.height * 0.95);
 
             const offsetX = (manager.offsetX || 0) + (manager.width - cardWidth) / 2;
             const offsetY = (manager.offsetY || 0) + (manager.height - cardHeight) / 2;
