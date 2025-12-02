@@ -358,23 +358,19 @@
         },
 
         draw: function (p, manager, activeIndex, progress) {
-            // Determine which card to show based on activeIndex
-            // activeIndex 4 = intro (show card 0 - Bitcoin)
+            // Only show cards for indices 5-9
             // activeIndex 5 = Bitcoin (card 0)
             // activeIndex 6 = Gold (card 1)
             // activeIndex 7 = Oil (card 2)
             // activeIndex 8 = S&P 500 (card 3)
             // activeIndex 9 = USD Index (card 4)
             
-            let mappedIndex;
-            if (activeIndex === 4) {
-                mappedIndex = 0; // Show Bitcoin on intro
-            } else if (activeIndex >= 5 && activeIndex <= 9) {
-                mappedIndex = activeIndex - 5; // Map 5->0, 6->1, 7->2, 8->3, 9->4
-            } else {
-                mappedIndex = 0; // Default to first card
+            // Don't render anything if not in range
+            if (activeIndex < 5 || activeIndex > 9) {
+                return;
             }
             
+            let mappedIndex = activeIndex - 5; // Map 5->0, 6->1, 7->2, 8->3, 9->4
             mappedIndex = Math.max(0, Math.min(CARDS.length - 1, mappedIndex));
 
             // Handle transitions
@@ -416,15 +412,6 @@
                 // Just draw current card
                 drawCard(p, currentCardIndex, 255, offsetX, offsetY, cardWidth, cardHeight);
             }
-
-            // Draw navigation hint
-            p.push();
-            p.fill(150);
-            p.noStroke();
-            p.textAlign(p.CENTER, p.BOTTOM);
-            p.textSize(12);
-            p.text('Scroll to see more assets', manager.width / 2, manager.height - 20);
-            p.pop();
         }
     };
 
