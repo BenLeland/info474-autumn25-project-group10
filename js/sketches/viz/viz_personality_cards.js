@@ -314,28 +314,6 @@
                 p.fill(50, 50, 50, textAlpha);
                 p.text(analytics.correlation.toFixed(2), metricX + 110, currentY);
             }
-
-            // Sparkline
-            const sparklineY = 530; // Moved up from 560
-            const sparklineHeight = 70; // Reduced from 80
-            const sparklinePadding = 40;
-            const sparklineWidth = cardWidth - sparklinePadding * 2;
-
-            // Draw background for sparkline area
-            p.fill(250, 250, 250, textAlpha * 0.5);
-            p.noStroke();
-            p.rect(sparklinePadding - 5, sparklineY - 30, sparklineWidth + 10, sparklineHeight + 35, 5);
-
-            p.textAlign(p.CENTER, p.TOP);
-            p.textSize(11);
-            p.textStyle(p.ITALIC);
-            p.fill(100, 100, 100, textAlpha);
-            p.text('Price trend, 2013–2025', cardWidth / 2, sparklineY - 20);
-
-            const sparkColor = p.color(card.color);
-            sparkColor.setAlpha(textAlpha);
-            drawSparkline(p, sparklinePadding, sparklineY, sparklineWidth, sparklineHeight, 
-                         analytics.sparkline, sparkColor);
         } else if (!isLoading) {
             // Show "Loading..." message
             p.textAlign(p.CENTER, p.CENTER);
