@@ -27,7 +27,7 @@
             title: 'Oil',
             subtitle: 'The mood-swinging drama uncle.',
             description: 'Oil reacts to war, supply cuts, and global demand. It can skyrocket or collapse depending on geopolitics.',
-            color: '#2C3E50',
+            color: '#2C2C2C',
             icon: 'drop'
         },
         {
@@ -35,7 +35,7 @@
             title: 'S&P 500',
             subtitle: 'The dependable corporate workhorse.',
             description: 'S&P 500 reflects human economic activity. It grows in good times, falls in global uncertainty.',
-            color: '#0066CC',
+            color: '#4169E1',
             icon: 'chart'
         },
         {
@@ -43,7 +43,7 @@
             title: 'USD Index',
             subtitle: 'The global referee.',
             description: 'The U.S. dollar is the world\'s safe haven. When everything breaks, people run to the dollar.',
-            color: '#3AAA35',
+            color: '#2ECC71',
             icon: 'dollar'
         }
     ];
