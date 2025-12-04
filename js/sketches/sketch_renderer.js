@@ -62,7 +62,7 @@
                 return;
             }
 
-            if (ai === 10 || ai === 15) {
+            if (ai === 10) {
                 window.CurrencyValueOverTime.draw(p, manager, ai, progress);
                 return;
             }

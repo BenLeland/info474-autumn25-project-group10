@@ -155,15 +155,38 @@
             return numerator / Math.sqrt(denomX * denomY);
         },
 
-        getColorForCorrelation: function(corr, alpha) {
-            // Blue for positive, red for negative
-            if (corr > 0) {
-                var intensity = Math.floor(corr * 200);
-                return 'rgba(65, 105, 225, ' + (alpha || 1) + ')'; // Royal blue
-            } else {
-                var intensity = Math.floor(Math.abs(corr) * 200);
-                return 'rgba(220, 20, 60, ' + (alpha || 1) + ')'; // Crimson
+        hexToRgb: function(hex) {
+            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        },
+
+        blendColors: function(color1, color2, weight) {
+            // weight 0-1, 0.5 = equal mix
+            var c1 = this.hexToRgb(color1);
+            var c2 = this.hexToRgb(color2);
+            return {
+                r: Math.round(c1.r * (1 - weight) + c2.r * weight),
+                g: Math.round(c1.g * (1 - weight) + c2.g * weight),
+                b: Math.round(c1.b * (1 - weight) + c2.b * weight)
+            };
+        },
+
+        getCellColor: function(i, j, corr) {
+            // For diagonal, use the asset's own color
+            if (i === j) {
+                return this.hexToRgb(this.assets[this.assetKeys[i]].color);
             }
+            
+            // For off-diagonal, blend the two asset colors based on correlation strength
+            var asset1Color = this.assets[this.assetKeys[i]].color;
+            var asset2Color = this.assets[this.assetKeys[j]].color;
+            
+            // Blend 50/50 for the base color
+            return this.blendColors(asset1Color, asset2Color, 0.5);
         },
 
         draw: function(p, manager, ai, progress) {
@@ -220,26 +243,32 @@
                         };
                     }
                     
-                    // Draw cell background
+                    // Draw cell background with asset colors
+                    var cellColor = this.getCellColor(i, j, corr);
+                    
                     if (i === j) {
-                        // Diagonal - grey
-                        p.fill(200);
+                        // Diagonal - use asset color at 40% opacity
+                        p.fill(cellColor.r, cellColor.g, cellColor.b, 100);
                     } else {
-                        // Correlation color
-                        var alpha = Math.abs(corr);
-                        if (corr > 0) {
-                            p.fill(65, 105, 225, alpha * 255);
-                        } else {
-                            p.fill(220, 20, 60, Math.abs(corr) * 255);
-                        }
+                        // Off-diagonal - blend asset colors with opacity based on correlation strength
+                        var alpha = Math.abs(corr) * 200 + 55; // min 55, max 255
+                        p.fill(cellColor.r, cellColor.g, cellColor.b, alpha);
                     }
                     
                     p.stroke(255);
                     p.strokeWeight(2);
                     p.rect(x, y, cellSize, cellSize);
                     
-                    // Draw correlation value
-                    p.fill(i === j ? 100 : 255);
+                    // Draw correlation value with contrast
+                    if (i === j) {
+                        p.fill(100); // Dark grey for diagonal
+                    } else {
+                        // White text for darker cells, black for lighter cells
+                        var brightness = (cellColor.r * 0.299 + cellColor.g * 0.587 + cellColor.b * 0.114);
+                        var alpha = Math.abs(corr) * 200 + 55;
+                        var adjustedBrightness = brightness * (alpha / 255);
+                        p.fill(adjustedBrightness > 128 ? 0 : 255);
+                    }
                     p.noStroke();
                     p.textAlign(p.CENTER, p.CENTER);
                     p.textSize(16);
