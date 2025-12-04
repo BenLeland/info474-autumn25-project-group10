@@ -59,20 +59,37 @@
           A rising dollar typically reflects global flight-to-safety behavior.
         </section>
         <section class="step" data-active-index="2">
-          <div class="title">Interactive Bubble Timeline — How the Economy Moves Day by Day</div>
-          Watch how each asset behaves through expansions, crashes, and recoveries.
-          The height shows price, the size shows daily movement, and the color shows the asset type.<br><br>
+          <div class="title">Interactive Timeline — Watch the Economy Move in Real Time</div>
+          Watch how each asset behaves through expansions, crashes, and recoveries. The height shows price, the size shows daily movement, and the color shows the asset type.<br><br>
           
-          Move the timeline slider or press play to see how the economic system evolves through events like:<br>
-          • March 2020 (COVID shock)<br>
-          • Early 2022 (Ukraine tensions)<br>
-          • November 2022 (FTX collapse)
+          <strong>How to use the timeline:</strong><br>
+          Click the play button or drag the slider to navigate through time. Toggle assets on/off using the checkboxes on the right. Hover over bubbles to see detailed price and daily change information.<br><br>
+          
+          <strong>What to observe:</strong><br>
+          Look for how each asset responded to major events like March 2020 (COVID shock), Early 2022 (Ukraine tensions), and November 2022 (FTX collapse).<br><br>
+          
+          <strong>Why it matters:</strong><br>
+          This teaches you how to look at assets — not just what they are, but how they behave as a system during moments of uncertainty and growth.
         </section>
         <section class="step" data-active-index="3">
-          <div class="title">Navigating the Timeline</div>
-          Click the play button or drag the slider to navigate through time. Toggle assets on/off using
-          the checkboxes on the right. Hover over bubbles to see detailed information about price and
-          daily changes. This teaches you how to look at assets, not just what they are.
+          <div class="title">Observing Market Dynamics</div>
+          Continue exploring the timeline to understand volatility and safe-haven behavior across different time periods.
+        </section>
+        <section class="step" data-active-index="13">
+          <div class="title">Sparklines — Long-Term Trends at a Glance</div>
+          Small multiples show normalized price trends (2013–present) for each asset. Hover any row to view the latest price and click to focus an asset across other views. These sparklines make it easy to compare long-term trends and spot periods of extreme movement at a glance.
+        </section>
+        <section class="step" data-active-index="14">
+          <div class="title">How These Assets Move Together — The Hidden Relationships</div>
+          Financial assets don't move randomly — they form patterns that reveal how different parts of the economy interact. Using 12 years of monthly data, we calculated how strongly each asset moves with others.<br><br>
+          
+          <strong>This correlation view highlights:</strong><br>
+          • Bitcoin moves mostly independently, showing that crypto responds to different forces than traditional markets<br>
+          • S&P 500 and Oil often move together, reflecting shared exposure to global growth and demand cycles<br>
+          • Gold and USD Index frequently move opposite risk-on assets, reinforcing their role as safe havens<br>
+          • Gold is the most independent of the group, shifting based on inflation expectations rather than growth or speculation<br><br>
+          
+          This view helps us understand not only how each asset behaves individually — but how they fit together as a system.
         </section>
         <section class="step" data-active-index="10">
           <div class="title">Risk & Stability — A Comparative Look</div>
@@ -101,17 +118,9 @@
           
           This is the story of the economy, told through the movement of its major components.
         </section>
-        <section class="step" data-active-index="12">
-          <div class="title">Timeline — How Assets React to Events</div>
-          Compare daily price movements across Bitcoin, S&P 500, Gold, Oil, and the USD Index. Use the play button or drag the slider to step through time; toggle assets on the right to focus the comparison. Look for how each asset responded to major dates (COVID-19, Ukraine, banking stress) to understand volatility and safe-haven behavior.
-        </section>
-        <section class="step" data-active-index="13">
-          <div class="title">Sparklines — Quick Comparative Trends</div>
-          Small multiples show normalized price trends (2013–present) for each asset. Hover any row to view the latest price and click to focus an asset across other views. These sparklines make it easy to compare long-term trends and spot periods of extreme movement at a glance.
-        </section>
         <section class="step" data-active-index="15">
           <div class="title">Monthly Asset Value Changes</div>
-          Asset values shift over time due to various factors including economic policies, technological advancements, and geopolitical events. This timeline shows month-to-month changes across all five assets. Green indicates positive movement, red indicates declines. The scale of each bar represents the percentage change relative to the previous month.
+          Assets shift value over time due to economic, geopolitical, and technological pressures. This monthly view highlights each asset's own patterns of stability and volatility. Green indicates positive movement, red indicates declines. The scale of each bar represents the percentage change relative to the previous month.
         </section>
       </div>
       <div id='vis' class='vis-hidden'>
@@ -143,6 +152,7 @@
   <script src="js/sketches/viz/viz_title.js"></script>
   <script src="js/sketches/viz/viz_bubbles.js"></script>
   <script src="js/sketches/viz/viz_personality_cards.js"></script>
+  <script src="js/sketches/viz/viz_correlation_heatmap.js"></script>
   <script src="js/sketches/viz/currency_value_over_time.js"></script>
   <script src="js/sketches/viz/viz_scatter.js"></script>
   <script src="js/sketches/viz/viz_bar.js"></script>

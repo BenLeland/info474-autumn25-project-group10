@@ -56,7 +56,13 @@
                 return;
             }
 
-            if (ai === 14 || ai === 15) {
+            // Correlation Heatmap (index 14)
+            if (ai === 14) {
+                if (window.VizCorrelationHeatmap) window.VizCorrelationHeatmap.draw(p, manager, ai, progress);
+                return;
+            }
+
+            if (ai === 10 || ai === 15) {
                 window.CurrencyValueOverTime.draw(p, manager, ai, progress);
                 return;
             }
