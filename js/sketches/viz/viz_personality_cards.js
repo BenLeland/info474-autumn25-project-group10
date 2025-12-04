@@ -4,45 +4,45 @@
 (function () {
     'use strict';
 
-    // Card definitions with personality descriptions
+    // Card definitions with economically-meaningful descriptions
     const CARDS = [
         {
             id: 'bitcoin',
             title: 'Bitcoin',
-            subtitle: 'A rocket with no seatbelt.',
-            description: 'Bitcoin is explosive, unpredictable, and reactive—capable of extreme booms and catastrophic crashes within days.',
+            subtitle: 'The High-Voltage Speculator',
+            description: 'Bitcoin reacts quickly and dramatically to shifts in sentiment. Daily swings of ±10% are common, making it a strong indicator of risk appetite.',
             color: '#F7931A',
             icon: 'crypto'
         },
         {
             id: 'gold',
             title: 'Gold',
-            subtitle: 'The steady grandma of finance.',
-            description: 'Gold is calm. When panic spreads, it stabilizes portfolios and moves gently upward.',
+            subtitle: 'The Defensive Shield',
+            description: 'Gold tends to remain stable through uncertainty. It doesn\'t move fast, but it rarely collapses — a classic sign of "flight to safety."',
             color: '#FFD700',
             icon: 'shield'
         },
         {
             id: 'oil',
             title: 'Oil',
-            subtitle: 'The mood-swinging drama uncle.',
-            description: 'Oil reacts to war, supply cuts, and global demand. It can skyrocket or collapse depending on geopolitics.',
+            subtitle: 'The Geopolitical Barometer',
+            description: 'Oil prices respond to supply, conflict, and global demand. Its volatility reveals stress in global production and transportation networks.',
             color: '#2C2C2C',
             icon: 'drop'
         },
         {
             id: 'sp500',
             title: 'S&P 500',
-            subtitle: 'The dependable corporate workhorse.',
-            description: 'S&P 500 reflects human economic activity. It grows in good times, falls in global uncertainty.',
+            subtitle: 'The Corporate Pulse',
+            description: 'The stock market reflects expectations about corporate earnings and economic growth. Sharp declines often align with global uncertainty or recession fear.',
             color: '#4169E1',
             icon: 'chart'
         },
         {
             id: 'usd',
             title: 'USD Index',
-            subtitle: 'The global referee.',
-            description: 'The U.S. dollar is the world\'s safe haven. When everything breaks, people run to the dollar.',
+            subtitle: 'The Global Anchor',
+            description: 'When uncertainty rises, demand for the U.S. dollar often increases. A rising dollar typically reflects global flight-to-safety behavior.',
             color: '#2ECC71',
             icon: 'dollar'
         }
