@@ -245,6 +245,9 @@
                 return;
             }
             
+            // Ensure bubbles are positioned (in case canvas size changed)
+            this.positionBubbles(manager);
+            
             // Update animation
             if (this.isPlaying) {
                 this.currentIndex += this.playSpeed;
