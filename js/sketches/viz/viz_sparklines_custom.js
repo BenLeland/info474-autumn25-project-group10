@@ -1,5 +1,5 @@
 // viz_sparklines_custom.js
-// Sparklines small multiples: one sparkline per asset with hover tooltip and click-to-focus
+// Animated sparklines: shows all 5 assets growing through time with play controls
 (function() {
     window.VizSparklinesCustom = {
         assets: [
@@ -10,8 +10,12 @@
             { key: 'usd', name: 'USD Index', file: 'data/US Dollar Index Historical Data.csv', color: '#2ECC71', data: [] }
         ],
         dataLoaded: false,
-        focused: null,
-        hover: null,
+        
+        // Animation state
+        isPlaying: false,
+        currentIndex: 0,
+        playSpeed: 3,
+        maxIndex: 0,
 
         parseDate: function(dateStr){ var parts = dateStr.replace(/\"/g,'').split('/'); return new Date(parts[2], parts[0]-1, parts[1]); },
 
@@ -19,43 +23,230 @@
 
         loadData: function(p){
             var self = this; var loaded = 0; var total = this.assets.length;
-            this.assets.forEach(function(a){ p.loadTable(a.file,'csv','header', function(table){ a.data = self.parseTable(table); loaded++; if (loaded===total) self.dataLoaded=true; }, function(err){ console.error('VizSparklinesCustom load error', a.file, err); loaded++; if (loaded===total) self.dataLoaded=true; }); });
+            this.assets.forEach(function(a){ p.loadTable(a.file,'csv','header', function(table){ a.data = self.parseTable(table); loaded++; if (loaded===total) { self.dataLoaded=true; self.maxIndex = Math.max(...self.assets.map(function(asset){ return asset.data.length; })); self.currentIndex = self.maxIndex; } }, function(err){ console.error('VizSparklinesCustom load error', a.file, err); loaded++; if (loaded===total) { self.dataLoaded=true; self.maxIndex = Math.max(...self.assets.map(function(asset){ return asset.data.length; })); self.currentIndex = self.maxIndex; } }); });
         },
 
         handleMousePressed: function(p, manager){
-            // check clicks on each sparkline box
-            var left = manager.offsetX || 20; var top = manager.offsetY || 20; var cols = 1; var boxW = manager.width || 600; var boxH = 100; var pad = 20;
-            for (var i=0;i<this.assets.length;i++){ var x = left; var y = top + i*(boxH+pad); if (p.mouseX >= x && p.mouseX <= x + boxW && p.mouseY >= y && p.mouseY <= y + boxH){ this.focused = this.assets[i].key; return true; } }
+            // Check play/pause button
+            var buttonX = 50;
+            var buttonY = manager.canvasHeight - 60;
+            var buttonSize = 40;
+            
+            if (p.dist(p.mouseX, p.mouseY, buttonX, buttonY) < buttonSize / 2 + 5) {
+                this.isPlaying = !this.isPlaying;
+                return true;
+            }
+            
+            // Check slider
+            var sliderX = 120;
+            var sliderY = manager.canvasHeight - 60;
+            var sliderWidth = manager.canvasWidth - 250;
+            
+            if (p.mouseX >= sliderX && p.mouseX <= sliderX + sliderWidth &&
+                p.mouseY >= sliderY - 10 && p.mouseY <= sliderY + 10) {
+                var progress = (p.mouseX - sliderX) / sliderWidth;
+                this.currentIndex = Math.floor(progress * this.maxIndex);
+                this.isPlaying = false;
+                return true;
+            }
+            
             return false;
         },
 
-        handleMouseDragged: function(){ return false; },
+        handleMouseDragged: function(p, manager){
+            // Allow dragging slider
+            var sliderX = 120;
+            var sliderY = manager.canvasHeight - 60;
+            var sliderWidth = manager.canvasWidth - 250;
+            
+            if (p.mouseX >= sliderX - 20 && p.mouseX <= sliderX + sliderWidth + 20 &&
+                p.mouseY >= sliderY - 20 && p.mouseY <= sliderY + 20) {
+                var progress = Math.max(0, Math.min(1, (p.mouseX - sliderX) / sliderWidth));
+                this.currentIndex = Math.floor(progress * this.maxIndex);
+                this.isPlaying = false;
+                return true;
+            }
+            return false;
+        },
+        
         handleMouseReleased: function(){ return false; },
 
-        drawSpark: function(p, x, y, w, h, data, color){ if (!data || data.length<2) return; var min = Infinity, max=-Infinity; for(var i=0;i<data.length;i++){ min=Math.min(min,data[i].price); max=Math.max(max,data[i].price); } if (min===max){ min-=1; max+=1; } p.noFill(); p.stroke(color); p.strokeWeight(2); p.beginShape(); for(var i=0;i<data.length;i++){ var px = x + (i/(data.length-1))*w; var py = y + h - ((data[i].price-min)/(max-min))*h; p.vertex(px,py); } p.endShape(); },
+        drawLineChart: function(p, x, y, w, h, asset){
+            if (!asset.data || asset.data.length<2) return;
+            
+            var dataSlice = asset.data.slice(0, Math.min(this.currentIndex, asset.data.length));
+            if (dataSlice.length < 2) return;
+            
+            var min = Infinity, max=-Infinity;
+            for(var i=0;i<dataSlice.length;i++){ 
+                min=Math.min(min,dataSlice[i].price); 
+                max=Math.max(max,dataSlice[i].price); 
+            }
+            if (min===max){ min-=1; max+=1; }
+            
+            p.noFill(); 
+            p.stroke(asset.color); 
+            p.strokeWeight(3); 
+            p.beginShape();
+            for(var i=0;i<dataSlice.length;i++){ 
+                var px = x + (i/(this.maxIndex-1))*w; 
+                var py = y + h - ((dataSlice[i].price-min)/(max-min))*h; 
+                p.vertex(px,py); 
+            }
+            p.endShape();
+            
+            // Draw current point
+            if (dataSlice.length > 0) {
+                var lastPoint = dataSlice[dataSlice.length - 1];
+                var px = x + ((dataSlice.length-1)/(this.maxIndex-1))*w;
+                var py = y + h - ((lastPoint.price-min)/(max-min))*h;
+                p.fill(asset.color);
+                p.noStroke();
+                p.circle(px, py, 8);
+            }
+        },
+
+        drawControls: function(p, manager){
+            // Play/Pause button
+            var buttonX = 50;
+            var buttonY = manager.canvasHeight - 60;
+            var buttonSize = 40;
+            
+            p.fill(100, 150, 255);
+            p.noStroke();
+            p.circle(buttonX, buttonY, buttonSize);
+            
+            p.fill(255);
+            if (this.isPlaying) {
+                p.rect(buttonX - 7, buttonY - 10, 4, 20);
+                p.rect(buttonX + 3, buttonY - 10, 4, 20);
+            } else {
+                p.triangle(buttonX - 6, buttonY - 10, buttonX - 6, buttonY + 10, buttonX + 8, buttonY);
+            }
+            
+            // Timeline slider
+            var sliderX = 120;
+            var sliderY = buttonY;
+            var sliderWidth = manager.canvasWidth - 250;
+            var sliderHeight = 8;
+            
+            // Track
+            p.fill(200);
+            p.noStroke();
+            p.rect(sliderX, sliderY - sliderHeight/2, sliderWidth, sliderHeight, 4);
+            
+            // Progress
+            var progress = this.currentIndex / this.maxIndex;
+            p.fill(100, 150, 255);
+            p.rect(sliderX, sliderY - sliderHeight/2, sliderWidth * progress, sliderHeight, 4);
+            
+            // Handle
+            var handleX = sliderX + sliderWidth * progress;
+            p.fill(100, 150, 255);
+            p.stroke(255);
+            p.strokeWeight(2);
+            p.circle(handleX, sliderY, 16);
+            
+            // Date labels
+            p.fill(0);
+            p.noStroke();
+            p.textSize(12);
+            p.textAlign(p.LEFT, p.TOP);
+            if (this.assets[0].data.length > 0) {
+                var firstDate = this.assets[0].data[0].date;
+                var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                p.text(months[firstDate.getMonth()] + ' ' + firstDate.getFullYear(), sliderX, sliderY + 15);
+            }
+            p.textAlign(p.RIGHT, p.TOP);
+            if (this.assets[0].data.length > 0) {
+                var lastDate = this.assets[0].data[this.assets[0].data.length - 1].date;
+                var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                p.text(months[lastDate.getMonth()] + ' ' + lastDate.getFullYear(), sliderX + sliderWidth, sliderY + 15);
+            }
+            
+            // Current date
+            p.textAlign(p.CENTER, p.TOP);
+            p.textSize(14);
+            if (this.currentIndex < this.assets[0].data.length) {
+                var currentDate = this.assets[0].data[Math.min(this.currentIndex, this.assets[0].data.length - 1)].date;
+                var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                p.text(months[currentDate.getMonth()] + ' ' + currentDate.getFullYear(), manager.canvasWidth / 2, sliderY + 15);
+            }
+        },
 
         draw: function(p, manager, ai, progress){
-            p.push(); p.background(255);
-            var left = manager.offsetX || 20; var top = manager.offsetY || 20; var w = manager.width || 600; var boxH = 90; var pad = 20; var self=this;
-            if (!this.dataLoaded){ if (!this._tried){ this._tried=true; this.loadData(p); } p.fill(0); p.textAlign(p.LEFT, p.TOP); p.text('Loading sparklines...', left+20, top+20); p.pop(); return; }
-
-            for (var i=0;i<this.assets.length;i++){
-                var a = this.assets[i]; var x = left; var y = top + i*(boxH+pad);
-                // box
-                p.noStroke(); p.fill(245); p.rect(x, y, w, boxH, 6);
-                // title
-                p.fill(0); p.textAlign(p.LEFT, p.TOP); p.textSize(14); p.text(a.name + (this.focused===a.key? ' (focused)':''), x+10, y+8);
-                // sparkline area
-                this.drawSpark(p, x+10, y+30, w-20, boxH-40, a.data, a.color);
-                // last price
-                var last = a.data.length>0? a.data[a.data.length-1].price : null; p.textAlign(p.RIGHT, p.TOP); p.textSize(12); p.fill(80); p.text(last? '$'+last.toLocaleString() : 'n/a', x+w-12, y+10);
-                // hover detection
-                if (p.mouseX >= x && p.mouseX <= x+w && p.mouseY >= y && p.mouseY <= y+boxH){ this.hover = a.key; }
+            p.push(); 
+            p.background(255);
+            
+            if (!this.dataLoaded){ 
+                if (!this._tried){ this._tried=true; this.loadData(p); } 
+                p.fill(0); 
+                p.textAlign(p.CENTER, p.CENTER); 
+                p.textSize(24);
+                p.text('Loading timeline data...', manager.canvasWidth / 2, manager.canvasHeight / 2); 
+                p.pop(); 
+                return; 
             }
-
-            // hover tooltip
-            if (this.hover){ var a = this.assets.find(function(z){ return z.key===self.hover; }); if (a){ var mx = p.mouseX, my = p.mouseY; p.fill(0,0,0,230); p.noStroke(); p.rect(mx+12, my-28, 160, 48, 6); p.fill(255); p.textAlign(p.LEFT, p.TOP); p.textSize(12); var last = a.data.length>0? a.data[a.data.length-1] : null; p.text(a.name, mx+20, my-22); if (last) p.text('Last: $'+last.price.toLocaleString(), mx+20, my-8); } }
-
+            
+            // Animation
+            if (this.isPlaying) {
+                this.currentIndex += this.playSpeed;
+                if (this.currentIndex >= this.maxIndex) {
+                    this.currentIndex = this.maxIndex;
+                    this.isPlaying = false;
+                }
+            }
+            
+            // Draw combined chart
+            var chartX = 60;
+            var chartY = 40;
+            var chartW = manager.canvasWidth - 140;
+            var chartH = manager.canvasHeight - 180;
+            
+            // Title
+            p.fill(0);
+            p.noStroke();
+            p.textAlign(p.CENTER, p.TOP);
+            p.textSize(20);
+            p.textStyle(p.BOLD);
+            p.text('All Five Assets Over Time', manager.canvasWidth / 2, 10);
+            
+            // Chart background
+            p.fill(250);
+            p.noStroke();
+            p.rect(chartX, chartY, chartW, chartH, 8);
+            
+            // Grid lines
+            p.stroke(230);
+            p.strokeWeight(1);
+            for (var i = 0; i <= 4; i++) {
+                var y = chartY + (chartH / 4) * i;
+                p.line(chartX, y, chartX + chartW, y);
+            }
+            
+            // Draw all asset lines
+            for (var i = 0; i < this.assets.length; i++) {
+                this.drawLineChart(p, chartX, chartY, chartW, chartH, this.assets[i]);
+            }
+            
+            // Legend
+            var legendX = chartX + 20;
+            var legendY = chartY + 20;
+            for (var i = 0; i < this.assets.length; i++) {
+                var a = this.assets[i];
+                p.fill(a.color);
+                p.noStroke();
+                p.circle(legendX, legendY + i * 25, 10);
+                p.fill(0);
+                p.textAlign(p.LEFT, p.CENTER);
+                p.textSize(14);
+                p.textStyle(p.NORMAL);
+                p.text(a.name, legendX + 15, legendY + i * 25);
+            }
+            
+            // Controls
+            this.drawControls(p, manager);
+            
             p.pop();
         }
     };
