@@ -513,9 +513,12 @@
             var buttonY = sliderY + 5;
             var buttonSize = 30;
             
+            console.log('VizBubbles mousePressed:', { mouseX: p.mouseX, mouseY: p.mouseY, buttonX: buttonX, buttonY: buttonY, dist: p.dist(p.mouseX, p.mouseY, buttonX, buttonY), threshold: buttonSize / 2 + 5 });
+            
             // Increased click radius from buttonSize/2 to buttonSize/2 + 5
             if (p.dist(p.mouseX, p.mouseY, buttonX, buttonY) < buttonSize / 2 + 5) {
                 this.isPlaying = !this.isPlaying;
+                console.log('VizBubbles: play/pause toggled, isPlaying:', this.isPlaying);
                 return true;
             }
             
