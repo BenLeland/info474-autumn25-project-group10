@@ -185,7 +185,7 @@
 
         positionBubbles: function(manager) {
             var centerX = manager.canvasWidth / 2;
-            var centerY = manager.canvasHeight / 2 + 20;
+            var centerY = (manager.canvasHeight / 2) - 40; // Moved up 60px for more space
             var radius = 200;
             
             var keys = Object.keys(this.assets);
@@ -324,7 +324,7 @@
 
         drawTimeline: function(p, manager) {
             var sliderX = 100;
-            var sliderY = manager.canvasHeight - 80;
+            var sliderY = manager.canvasHeight - 60; // Moved up from -80 for better spacing
             var sliderWidth = manager.canvasWidth - 200;
             var sliderHeight = 10;
             
@@ -390,7 +390,7 @@
         drawControls: function(p, manager) {
             // Play/Pause button
             var buttonX = 40;
-            var buttonY = manager.canvasHeight - 80 + 5;
+            var buttonY = manager.canvasHeight - 60 + 5; // Updated to match new slider position
             var buttonSize = 30;
             
             p.fill(100, 150, 255);
@@ -504,7 +504,7 @@
 
         handleMousePressed: function(p, manager) {
             var sliderX = 100;
-            var sliderY = manager.canvasHeight - 80;
+            var sliderY = manager.canvasHeight - 60; // Updated to match new position
             var sliderWidth = manager.canvasWidth - 200;
             var sliderHeight = 10;
             
