@@ -9,19 +9,31 @@
             p.push();
             p.fill(0);
             p.textAlign(p.CENTER, p.CENTER);
-            p.textSize(48);
+            
+            // Main title
+            p.textSize(52);
             p.strokeWeight(2);
-            p.text('The Forces that Shape the Value of Money', cx - 600 / 2, cy - 600 / 2 + 120, 600, 600);
+            p.textStyle(p.BOLD);
+            p.text('The Economy, Explained Through Five Assets', cx - 600 / 2, cy - 600 / 2 + 100, 600, 600);
+            
+            // Subtitle
+            p.textSize(18);
+            p.strokeWeight(1);
+            p.textStyle(p.NORMAL);
+            p.fill(80);
+            p.text('A data-driven look at how Bitcoin, S&P 500, Gold, Oil, and the U.S. Dollar', cx - 600 / 2, cy - 600 / 2 + 180, 600, 600);
+            p.text('reflect shifts in global sentiment from 2013–2025.', cx - 600 / 2, cy - 600 / 2 + 205, 600, 600);
 
             let bodyText = 'INFO 474';
             let names = 'Ben Leland, Cade Jeong, Raghav Sharma'
             let boxWidth = p.windowWidth * 0.7;
             let boxX = (p.windowWidth - boxWidth) / 2;
 
+            p.fill(0);
             p.strokeWeight(1);
             p.textSize(21);
-            p.text(bodyText, cx - 600 / 2, cy - 700 / 2 + 225, 600, 700);
-            p.text(names,  cx - 600 / 2, cy - 700 / 2 + 250, 600, 700)
+            p.text(bodyText, cx - 600 / 2, cy - 700 / 2 + 265, 600, 700);
+            p.text(names,  cx - 600 / 2, cy - 700 / 2 + 290, 600, 700)
 
             p.pop();
         }
