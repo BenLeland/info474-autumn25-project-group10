@@ -23,17 +23,34 @@
 
         loadData: function(p){
             var self = this; var loaded = 0; var total = this.assets.length;
-            this.assets.forEach(function(a){ p.loadTable(a.file,'csv','header', function(table){ a.data = self.parseTable(table); loaded++; if (loaded===total) { self.dataLoaded=true; self.maxIndex = Math.max(...self.assets.map(function(asset){ return asset.data.length; })); self.currentIndex = self.maxIndex; } }, function(err){ console.error('VizSparklinesCustom load error', a.file, err); loaded++; if (loaded===total) { self.dataLoaded=true; self.maxIndex = Math.max(...self.assets.map(function(asset){ return asset.data.length; })); self.currentIndex = self.maxIndex; } }); });
+            this.assets.forEach(function(a){ p.loadTable(a.file,'csv','header', function(table){ a.data = self.parseTable(table); loaded++; if (loaded===total) {
+                        self.dataLoaded=true;
+                        self.maxIndex = Math.max(...self.assets.map(function(asset){ return asset.data.length; }));
+                        // Start at the end by default but ensure index is a valid position
+                        self.currentIndex = Math.max(0, self.maxIndex);
+                    } }, function(err){ console.error('VizSparklinesCustom load error', a.file, err); loaded++; if (loaded===total) { self.dataLoaded=true; self.maxIndex = Math.max(...self.assets.map(function(asset){ return asset.data.length; })); // show last available index by default
+                                self.currentIndex = Math.max(0, self.maxIndex - 1); } }); });
         },
 
         handleMousePressed: function(p, manager){
+            console.log('VizSparklinesCustom: handleMousePressed', { mouseX: p.mouseX, mouseY: p.mouseY, isPlaying: this.isPlaying, currentIndex: this.currentIndex, maxIndex: this.maxIndex });
             // Check play/pause button
             var buttonX = 50;
             var buttonY = manager.canvasHeight - 60;
             var buttonSize = 40;
-            
+
             if (p.dist(p.mouseX, p.mouseY, buttonX, buttonY) < buttonSize / 2 + 5) {
-                this.isPlaying = !this.isPlaying;
+                // When the user presses Play, always start playback from 0.
+                // If currently paused, pressing the button will reset to 0 and start playing.
+                if (!this.isPlaying) {
+                    this.currentIndex = 0;
+                    this.isPlaying = true;
+                    console.log('VizSparklinesCustom: play pressed -> starting from 0');
+                } else {
+                    // If it's playing, the button pauses playback (no reset)
+                    this.isPlaying = false;
+                    console.log('VizSparklinesCustom: pause pressed');
+                }
                 return true;
             }
             
@@ -72,8 +89,11 @@
         handleMouseReleased: function(){ return false; },
 
         drawLineChart: function(p, x, y, w, h, asset){
-            if (!asset.data || asset.data.length<2) return;
-            
+            if (!asset.data || asset.data.length < 2) return;
+
+            // Avoid division by zero when maxIndex is 0 or 1
+            if (this.maxIndex <= 1) return;
+
             var dataSlice = asset.data.slice(0, Math.min(this.currentIndex, asset.data.length));
             if (dataSlice.length < 2) return;
             
@@ -135,8 +155,9 @@
             p.noStroke();
             p.rect(sliderX, sliderY - sliderHeight/2, sliderWidth, sliderHeight, 4);
             
-            // Progress
-            var progress = this.currentIndex / this.maxIndex;
+            // Progress (use maxIndex-1 as the last valid index)
+            var denom = Math.max(1, this.maxIndex - 1);
+            var progress = this.currentIndex / denom;
             p.fill(100, 150, 255);
             p.rect(sliderX, sliderY - sliderHeight/2, sliderWidth * progress, sliderHeight, 4);
             
@@ -152,13 +173,13 @@
             p.noStroke();
             p.textSize(12);
             p.textAlign(p.LEFT, p.TOP);
-            if (this.assets[0].data.length > 0) {
+            if (this.assets[0] && this.assets[0].data && this.assets[0].data.length > 0) {
                 var firstDate = this.assets[0].data[0].date;
                 var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                 p.text(months[firstDate.getMonth()] + ' ' + firstDate.getFullYear(), sliderX, sliderY + 15);
             }
             p.textAlign(p.RIGHT, p.TOP);
-            if (this.assets[0].data.length > 0) {
+            if (this.assets[0] && this.assets[0].data && this.assets[0].data.length > 0) {
                 var lastDate = this.assets[0].data[this.assets[0].data.length - 1].date;
                 var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                 p.text(months[lastDate.getMonth()] + ' ' + lastDate.getFullYear(), sliderX + sliderWidth, sliderY + 15);
@@ -167,10 +188,74 @@
             // Current date
             p.textAlign(p.CENTER, p.TOP);
             p.textSize(14);
-            if (this.currentIndex < this.assets[0].data.length) {
+            if (this.assets[0] && this.assets[0].data && this.assets[0].data.length > 0) {
                 var currentDate = this.assets[0].data[Math.min(this.currentIndex, this.assets[0].data.length - 1)].date;
                 var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                 p.text(months[currentDate.getMonth()] + ' ' + currentDate.getFullYear(), manager.canvasWidth / 2, sliderY + 15);
+            }
+        },
+
+        // Create a simple DOM play/pause button overlay to avoid relying solely on p5 mouse events
+        ensureDOMControls: function(manager) {
+            try {
+                var container = document.getElementById('vis');
+                if (!container) return;
+
+                var btnId = 'viz-sparklines-play-btn';
+                var existing = document.getElementById(btnId);
+                var self = this;
+
+                function updateButton() {
+                    if (!existing) return;
+                    existing.innerHTML = '';
+                    existing.style.background = 'rgb(100,150,255)';
+                    existing.style.border = 'none';
+                    existing.style.display = 'flex';
+                    existing.style.alignItems = 'center';
+                    existing.style.justifyContent = 'center';
+                    existing.style.cursor = 'pointer';
+                    // icon
+                    if (self.isPlaying) {
+                        // pause icon
+                        existing.innerHTML = '<div style="width:12px;height:18px;display:flex;gap:6px"><div style="width:4px;height:18px;background:#fff"></div><div style="width:4px;height:18px;background:#fff"></div></div>';
+                    } else {
+                        // play icon
+                        existing.innerHTML = '<div style="width:0;height:0;border-left:12px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent;margin-left:3px"></div>';
+                    }
+                }
+
+                if (!existing) {
+                    existing = document.createElement('button');
+                    existing.id = btnId;
+                    existing.setAttribute('aria-label', 'Play timeline');
+                    existing.style.position = 'absolute';
+                    existing.style.left = '40px';
+                    existing.style.bottom = '60px';
+                    existing.style.width = '48px';
+                    existing.style.height = '48px';
+                    existing.style.borderRadius = '50%';
+                    existing.style.zIndex = 9999;
+                    existing.style.boxShadow = '0 6px 18px rgba(0,0,0,0.15)';
+                    existing.style.outline = 'none';
+                    existing.style.padding = '0';
+                    existing.onclick = function (e) {
+                        e.stopPropagation();
+                        // Toggle playback: when starting, reset to 0
+                        if (!self.isPlaying) {
+                            self.currentIndex = 0;
+                            self.isPlaying = true;
+                        } else {
+                            self.isPlaying = false;
+                        }
+                        updateButton();
+                    };
+                    container.appendChild(existing);
+                }
+
+                // keep visual state in sync
+                updateButton();
+            } catch (e) {
+                console.error('ensureDOMControls error', e);
             }
         },
 
@@ -179,7 +264,7 @@
             p.background(255);
             
             if (!this.dataLoaded){ 
-                if (!this._tried){ this._tried=true; this.loadData(p); } 
+                if (!this._tried){ this._tried=true; console.log('VizSparklinesCustom: initiating loadData'); this.loadData(p); } 
                 p.fill(0); 
                 p.textAlign(p.CENTER, p.CENTER); 
                 p.textSize(24);
@@ -191,8 +276,9 @@
             // Animation
             if (this.isPlaying) {
                 this.currentIndex += this.playSpeed;
-                if (this.currentIndex >= this.maxIndex) {
-                    this.currentIndex = this.maxIndex;
+                // Cap at last valid index (maxIndex - 1) and stop playback
+                if (this.currentIndex >= this.maxIndex - 1) {
+                    this.currentIndex = Math.max(0, this.maxIndex - 1);
                     this.isPlaying = false;
                 }
             }
@@ -246,6 +332,8 @@
             
             // Controls
             this.drawControls(p, manager);
+            // Ensure a DOM play/pause button exists so clicks reliably control playback
+            this.ensureDOMControls(manager);
             
             p.pop();
         }
