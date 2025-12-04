@@ -21,9 +21,7 @@
             p.strokeWeight(1);
             p.textStyle(p.NORMAL);
             p.fill(80);
-            p.text('A data-driven look at how Bitcoin, S&P 500, Gold, Oil, and the U.S. Dollar', cx - 600 / 2, cy - 600 / 2 + 180, 600, 600);
-            p.text('reflect shifts in global sentiment from 2013–2025.', cx - 600 / 2, cy - 600 / 2 + 205, 600, 600);
-
+      
             let bodyText = 'INFO 474';
             let names = 'Ben Leland, Cade Jeong, Raghav Sharma'
             let boxWidth = p.windowWidth * 0.7;
