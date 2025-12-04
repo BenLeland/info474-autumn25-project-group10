@@ -32,7 +32,7 @@
                 return;
             }
 
-            if (ai === 2 || ai === 3) {
+            if (ai === 2) {
                 window.VizBubbles.draw(p, manager, ai, progress);
                 return;
             }
@@ -69,7 +69,7 @@
         },
 
         handleMousePressed: function (p, manager, ai) {
-            if (ai === 3 || ai === 4) {
+            if (ai === 2) {
                 return window.VizBubbles.handleMousePressed(p, manager);
             }
             if (ai === 14 && window.VizTimelineCustom && window.VizTimelineCustom.handleMousePressed) {
@@ -82,7 +82,7 @@
         },
 
         handleMouseDragged: function (p, manager, ai) {
-            if (ai === 3 || ai === 4) {
+            if (ai === 2) {
                 return window.VizBubbles.handleMouseDragged(p, manager);
             }
             if (ai === 14 && window.VizTimelineCustom && window.VizTimelineCustom.handleMouseDragged) {
@@ -95,7 +95,7 @@
         },
 
         handleMouseReleased: function (p, manager, ai) {
-            if (ai === 3 || ai === 4) {
+            if (ai === 2) {
                 return window.VizBubbles.handleMouseReleased(p, manager);
             }
             if (ai === 14 && window.VizTimelineCustom && window.VizTimelineCustom.handleMouseReleased) {
