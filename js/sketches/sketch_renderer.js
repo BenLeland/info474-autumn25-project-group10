@@ -38,7 +38,7 @@
             }
 
             // Asset Personality Cards (indices 4-9)
-            if (ai >= 4 && ai <= 10) {
+            if (ai >= 2 && ai <= 10) {
                 if (window.VizPersonalityCards) {
                     window.VizPersonalityCards.draw(p, manager, ai, progress);
                 }
