@@ -27,6 +27,14 @@
         draw: function (p, manager, ai, progress) {
             try { console.log('Renderer: delegating draw, ai=', ai); } catch (e) { }
 
+            // Clean up sparklines DOM button if not at index 13
+            if (ai !== 13) {
+                var sparklinesBtn = document.getElementById('viz-sparklines-play-btn');
+                if (sparklinesBtn) {
+                    sparklinesBtn.remove();
+                }
+            }
+
             if (ai === 0 || ai === 1) {
                 window.VizTitle.draw(p, manager, ai, progress);
                 return;
