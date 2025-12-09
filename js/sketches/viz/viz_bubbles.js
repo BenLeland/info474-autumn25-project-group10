@@ -373,8 +373,9 @@
             }
             
             // Current date - with background for visibility (larger and more prominent)
-            if (this.allDates[this.currentIndex]) {
-                var dateText = this.formatDate(this.allDates[this.currentIndex]);
+            var currentIdx = Math.floor(this.currentIndex);
+            if (this.allDates[currentIdx]) {
+                var dateText = this.formatDate(this.allDates[currentIdx]);
                 p.textSize(20);
                 p.textStyle(p.BOLD);
                 var textW = p.textWidth(dateText);
