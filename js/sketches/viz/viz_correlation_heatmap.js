@@ -222,7 +222,7 @@
             p.text('12-year monthly returns (2013-2025)', manager.canvasWidth / 2, 52);
             p.textSize(12);
             p.fill(100);
-            p.text('Blue = move together  •  Red = move opposite  •  Darker = stronger', manager.canvasWidth / 2, 72);
+            p.text('Green = move together  •  Red = move opposite  •  Darker = stronger', manager.canvasWidth / 2, 72);
             
             this.hoveredCell = null;
             
@@ -252,16 +252,22 @@
                         // Diagonal - light grey
                         p.fill(220);
                     } else {
-                        // Off-diagonal - blue for positive, red for negative, intensity based on strength
+                        // Off-diagonal - green for positive, red for negative, intensity based on strength
                         var strength = Math.abs(corr);
                         if (corr >= 0) {
-                            // Positive correlation: white to blue
-                            var blueIntensity = Math.floor(strength * 180) + 75; // Range: 75-255
-                            p.fill(255 - blueIntensity, 255 - blueIntensity, 255);
+                            // Positive correlation: white to green (#2ECC71)
+                            var greenIntensity = Math.floor(strength * 255);
+                            var r = 255 - Math.floor(greenIntensity * (255 - 46) / 255);
+                            var g = 255 - Math.floor(greenIntensity * (255 - 204) / 255);
+                            var b = 255 - Math.floor(greenIntensity * (255 - 113) / 255);
+                            p.fill(r, g, b);
                         } else {
-                            // Negative correlation: white to red
-                            var redIntensity = Math.floor(strength * 180) + 75; // Range: 75-255
-                            p.fill(255, 255 - redIntensity, 255 - redIntensity);
+                            // Negative correlation: white to red (#E74C3C)
+                            var redIntensity = Math.floor(strength * 255);
+                            var r = 255 - Math.floor(redIntensity * (255 - 231) / 255);
+                            var g = 255 - Math.floor(redIntensity * (255 - 76) / 255);
+                            var b = 255 - Math.floor(redIntensity * (255 - 60) / 255);
+                            p.fill(r, g, b);
                         }
                     }
                     
