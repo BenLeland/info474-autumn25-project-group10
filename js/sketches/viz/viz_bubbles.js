@@ -483,7 +483,7 @@
                 }
                 
                 // Label
-                p.fill(asset.enabled ? 255 : 150);
+                p.fill(asset.enabled ? 0 : 150);
                 p.noStroke();
                 p.text(asset.name, toggleX + 25, toggleY);
             });
