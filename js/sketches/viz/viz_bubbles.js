@@ -65,7 +65,7 @@
         // Timeline control
         currentIndex: 0,
         isPlaying: false,
-        playSpeed: 2,
+        playSpeed: 0.8, // Slowed down from 2 for better comprehension
 
         // Data
         dataLoaded: false,
