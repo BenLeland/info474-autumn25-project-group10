@@ -372,21 +372,23 @@
                 p.text(this.formatDate(this.latestDate), sliderX + sliderWidth, sliderY + 20);
             }
             
-            // Current date - with background for visibility
+            // Current date - with background for visibility (larger and more prominent)
             if (this.allDates[this.currentIndex]) {
                 var dateText = this.formatDate(this.allDates[this.currentIndex]);
-                p.textSize(16);
+                p.textSize(20);
+                p.textStyle(p.BOLD);
                 var textW = p.textWidth(dateText);
                 
-                // Dark background box
-                p.fill(0, 0, 0, 180);
+                // Dark background box (larger and positioned above timeline)
+                p.fill(0, 0, 0, 200);
                 p.noStroke();
-                p.rect(manager.canvasWidth / 2 - textW / 2 - 10, sliderY + 15, textW + 20, 25, 5);
+                p.rect(manager.canvasWidth / 2 - textW / 2 - 15, sliderY - 45, textW + 30, 35, 8);
                 
-                // White text
+                // White text (positioned prominently above slider)
                 p.fill(255);
-                p.textAlign(p.CENTER, p.TOP);
-                p.text(dateText, manager.canvasWidth / 2, sliderY + 20);
+                p.textAlign(p.CENTER, p.CENTER);
+                p.text(dateText, manager.canvasWidth / 2, sliderY - 28);
+                p.textStyle(p.NORMAL);
             }
             
             // Event markers
