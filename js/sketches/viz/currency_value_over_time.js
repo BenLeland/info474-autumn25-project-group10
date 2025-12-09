@@ -17,7 +17,7 @@
                 name: 'Gold', 
                 data: [], 
                 hasData: false,
-                scale: 130
+                scale: 300
             },
             oil: { 
                 name: 'Oil',  
@@ -54,6 +54,8 @@
         dropdownY: 20,
         dropdownW: 200,
         dropdownH: 30,
+
+        hoverIndex: -1,
 
         preload: function(p, manager) {
             if (!this.dataLoaded && Object.keys(this.assets).every(key => this.assets[key].data.length === 0)) {
@@ -188,10 +190,15 @@
         },
 
         drawBars: function(p, manager) {
-            const asset = this.assets[this.selectedAsset]
+            const asset = this.assets[this.selectedAsset];
             const data = asset.data;
             const y = manager.canvasHeight / 2;
 
+            this.hoverIndex = -1;
+            let mouseX = p.mouseX;
+            let mouseY = p.mouseY;
+
+            // First pass: detect hover
             for (let i = 0; i < data.length - 1; i++) {
                 const x1 = this.timeTicks[i];
                 const x2 = this.timeTicks[i + 1];
@@ -202,11 +209,69 @@
                 const change = priceNext - priceNow;
 
                 const barLength = p.map(Math.abs(change), 0, asset.scale, 0, 300);
+                const topY = y - barLength * Math.sign(change);
 
-                p.stroke(change >= 0 ? 'green' : 'red');
-                p.strokeWeight(4);
+                if (
+                    mouseX > midX - 5 && mouseX < midX + 5 &&
+                    ((mouseY > y && mouseY < topY) || (mouseY < y && mouseY > topY))
+                ) {
+                    this.hoverIndex = i;
+                }
+            }
+
+            // Second pass: draw with highlighting
+            for (let i = 0; i < data.length - 1; i++) {
+                const x1 = this.timeTicks[i];
+                const x2 = this.timeTicks[i + 1];
+                const midX = (x1 + x2) / 2;
+
+                const priceNow = data[i].price;
+                const priceNext = data[i + 1].price;
+                const change = priceNext - priceNow;
+
+                const barLength = p.map(Math.abs(change), 0, asset.scale, 0, 300);
+                const isHovered = (i === this.hoverIndex);
+
+                // Highlight logic
+                if (this.hoverIndex !== -1 && !isHovered) {
+                    p.stroke(180);
+                    p.strokeWeight(3);
+                } else {
+                    p.stroke(change >= 0 ? 'green' : 'red');
+                    p.strokeWeight(isHovered ? 6 : 4);
+                }
 
                 p.line(midX, y, midX, y - barLength * Math.sign(change));
+
+            }
+            
+            if (this.hoverIndex !== -1) {
+                const priceNow = data[this.hoverIndex].price;
+                const priceNext = data[this.hoverIndex + 1].price;
+                const change = priceNext - priceNow;
+
+                const barLength = p.map(Math.abs(change), 0, asset.scale, 0, 300);
+
+                const scaleStart = manager.canvasWidth / 2 - 250;
+                const scaleY = manager.canvasHeight / 2 + 250;
+
+                p.stroke(change >= 0 ? 'green' : 'red');
+                p.strokeWeight(6);
+
+                // Draw horizontal bar ON the scale
+                p.line(
+                    scaleStart,
+                    scaleY,
+                    scaleStart + barLength,
+                    scaleY
+                );
+
+                p.textAlign(p.CENTER, p.CENTER);
+                p.stroke(0);
+                p.strokeWeight(0);
+                p.fill(0);
+                p.textSize(12);
+                p.text('Change: ' + change.toFixed(2) + ' USD', manager.canvasWidth / 2 - 100, scaleY - 20);
             }
         },
 
@@ -276,15 +341,15 @@
         drawScale: function(p, manager) {
             p.strokeWeight(1);
             p.stroke(0);
-            p.line(manager.canvasWidth / 2 - 150 - 100, manager.canvasHeight / 2 + 295, manager.canvasWidth / 2 + 150 - 100, manager.canvasHeight / 2 + 295);
-            p.line(manager.canvasWidth / 2 - 150 - 100, manager.canvasHeight / 2 + 290, manager.canvasWidth / 2 - 150 - 100, manager.canvasHeight / 2 + 300);
-            p.line(manager.canvasWidth / 2 + 150 - 100, manager.canvasHeight / 2 + 290, manager.canvasWidth / 2 + 150 - 100, manager.canvasHeight / 2 + 300);
+            p.line(manager.canvasWidth / 2 - 150 - 100, manager.canvasHeight / 2 + 250, manager.canvasWidth / 2 + 150 - 100, manager.canvasHeight / 2 + 250);
+            p.line(manager.canvasWidth / 2 - 150 - 100, manager.canvasHeight / 2 + 245, manager.canvasWidth / 2 - 150 - 100, manager.canvasHeight / 2 + 255);
+            p.line(manager.canvasWidth / 2 + 150 - 100, manager.canvasHeight / 2 + 245, manager.canvasWidth / 2 + 150 - 100, manager.canvasHeight / 2 + 255);
 
             p.textAlign(p.CENTER, p.CENTER);
             p.fill(0);
             p.strokeWeight(0);
             p.textSize(12);
-            p.text('Scale: ' + this.assets[this.selectedAsset].scale + ' USD', manager.canvasWidth / 2 - 100, manager.canvasHeight / 2 + 280);
+            p.text('Scale: ' + this.assets[this.selectedAsset].scale + ' USD', manager.canvasWidth / 2 - 100, manager.canvasHeight / 2 + 270);
         }
     }
 })();
