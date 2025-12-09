@@ -135,8 +135,15 @@
                 var priceStr = table.getString(i, 'Price').replace(/,/g, '');
                 var changeStr = table.getString(i, 'Change %').replace('%', '');
                 
+                var parsedDate = this.parseDate(dateStr);
+                
+                // Skip rows with invalid dates
+                if (!parsedDate || isNaN(parsedDate.getTime())) {
+                    continue;
+                }
+                
                 data.push({
-                    date: this.parseDate(dateStr),
+                    date: parsedDate,
                     dateStr: dateStr,
                     price: parseFloat(priceStr),
                     changePercent: parseFloat(changeStr)
@@ -203,6 +210,8 @@
             if (!this.dataLoaded || this.allDates.length === 0) return;
             
             var currentDate = this.allDates[this.currentIndex];
+            if (!currentDate) return;
+            
             var self = this;
             
             Object.keys(this.assets).forEach(function(key) {
@@ -211,6 +220,8 @@
                 var minDiff = Infinity;
                 
                 asset.data.forEach(function(d) {
+                    if (!d || !d.date) return; // Skip invalid data
+                    
                     var diff = Math.abs(d.date.getTime() - currentDate.getTime());
                     if (diff < minDiff) {
                         minDiff = diff;
