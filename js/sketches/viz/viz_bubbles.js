@@ -235,6 +235,8 @@
         draw: function (p, manager, ai, progress) {
             var self = this;
             
+            console.log('VizBubbles.draw called, ai=' + ai + ', isPlaying=' + this.isPlaying + ', dataLoaded=' + this.dataLoaded);
+            
             // Initialize if needed
             if (!this.dataLoaded) {
                 this.init(p, manager);
@@ -256,6 +258,7 @@
                     this.isPlaying = false;
                 }
                 this.updateBubbleSizes();
+                console.log('Playing animation, currentIndex=' + Math.floor(this.currentIndex) + '/' + this.allDates.length);
             }
             
             // Smooth bubble size transitions
