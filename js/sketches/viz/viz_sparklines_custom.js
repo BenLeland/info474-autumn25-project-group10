@@ -168,94 +168,21 @@
             p.strokeWeight(2);
             p.circle(handleX, sliderY, 16);
             
-            // Date labels
+            // Start and end date labels only
             p.fill(0);
             p.noStroke();
-            p.textSize(12);
+            p.textSize(11);
             p.textAlign(p.LEFT, p.TOP);
             if (this.assets[0] && this.assets[0].data && this.assets[0].data.length > 0) {
                 var firstDate = this.assets[0].data[0].date;
                 var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                p.text(months[firstDate.getMonth()] + ' ' + firstDate.getFullYear(), sliderX, sliderY + 15);
+                p.text(months[firstDate.getMonth()] + ' ' + firstDate.getFullYear(), sliderX, sliderY + 12);
             }
             p.textAlign(p.RIGHT, p.TOP);
             if (this.assets[0] && this.assets[0].data && this.assets[0].data.length > 0) {
                 var lastDate = this.assets[0].data[this.assets[0].data.length - 1].date;
                 var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                p.text(months[lastDate.getMonth()] + ' ' + lastDate.getFullYear(), sliderX + sliderWidth, sliderY + 15);
-            }
-            
-            // Current date
-            p.textAlign(p.CENTER, p.TOP);
-            p.textSize(14);
-            if (this.assets[0] && this.assets[0].data && this.assets[0].data.length > 0) {
-                var currentDate = this.assets[0].data[Math.min(this.currentIndex, this.assets[0].data.length - 1)].date;
-                var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                p.text(months[currentDate.getMonth()] + ' ' + currentDate.getFullYear(), manager.canvasWidth / 2, sliderY + 15);
-            }
-        },
-
-        // Create a simple DOM play/pause button overlay to avoid relying solely on p5 mouse events
-        ensureDOMControls: function(manager) {
-            try {
-                var container = document.getElementById('vis');
-                if (!container) return;
-
-                var btnId = 'viz-sparklines-play-btn';
-                var existing = document.getElementById(btnId);
-                var self = this;
-
-                function updateButton() {
-                    if (!existing) return;
-                    existing.innerHTML = '';
-                    existing.style.background = 'rgb(100,150,255)';
-                    existing.style.border = 'none';
-                    existing.style.display = 'flex';
-                    existing.style.alignItems = 'center';
-                    existing.style.justifyContent = 'center';
-                    existing.style.cursor = 'pointer';
-                    // icon
-                    if (self.isPlaying) {
-                        // pause icon
-                        existing.innerHTML = '<div style="width:12px;height:18px;display:flex;gap:6px"><div style="width:4px;height:18px;background:#fff"></div><div style="width:4px;height:18px;background:#fff"></div></div>';
-                    } else {
-                        // play icon
-                        existing.innerHTML = '<div style="width:0;height:0;border-left:12px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent;margin-left:3px"></div>';
-                    }
-                }
-
-                if (!existing) {
-                    existing = document.createElement('button');
-                    existing.id = btnId;
-                    existing.setAttribute('aria-label', 'Play timeline');
-                    existing.style.position = 'absolute';
-                    existing.style.left = '40px';
-                    existing.style.bottom = '60px';
-                    existing.style.width = '48px';
-                    existing.style.height = '48px';
-                    existing.style.borderRadius = '50%';
-                    existing.style.zIndex = 9999;
-                    existing.style.boxShadow = '0 6px 18px rgba(0,0,0,0.15)';
-                    existing.style.outline = 'none';
-                    existing.style.padding = '0';
-                    existing.onclick = function (e) {
-                        e.stopPropagation();
-                        // Toggle playback: when starting, reset to 0
-                        if (!self.isPlaying) {
-                            self.currentIndex = 0;
-                            self.isPlaying = true;
-                        } else {
-                            self.isPlaying = false;
-                        }
-                        updateButton();
-                    };
-                    container.appendChild(existing);
-                }
-
-                // keep visual state in sync
-                updateButton();
-            } catch (e) {
-                console.error('ensureDOMControls error', e);
+                p.text(months[lastDate.getMonth()] + ' ' + lastDate.getFullYear(), sliderX + sliderWidth, sliderY + 12);
             }
         },
 
@@ -283,19 +210,29 @@
                 }
             }
             
-            // Draw combined chart
+            // Draw combined chart with more vertical space
             var chartX = 60;
-            var chartY = 40;
-            var chartW = manager.canvasWidth - 140;
+            var chartY = 80; // Increased from 40 to make room for date
+            var chartW = manager.canvasWidth - 260; // More space on right for legend
             var chartH = manager.canvasHeight - 180;
             
             // Title
             p.fill(0);
             p.noStroke();
             p.textAlign(p.CENTER, p.TOP);
-            p.textSize(20);
+            p.textSize(24);
             p.textStyle(p.BOLD);
             p.text('All Five Assets Over Time', manager.canvasWidth / 2, 10);
+            
+            // Current date prominently displayed
+            p.textSize(16);
+            p.textStyle(p.NORMAL);
+            p.fill(80);
+            if (this.assets[0] && this.assets[0].data && this.assets[0].data.length > 0) {
+                var currentDate = this.assets[0].data[Math.min(this.currentIndex, this.assets[0].data.length - 1)].date;
+                var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                p.text('Current: ' + months[currentDate.getMonth()] + ' ' + currentDate.getDate() + ', ' + currentDate.getFullYear(), manager.canvasWidth / 2, 40);
+            }
             
             // Chart background
             p.fill(250);
@@ -310,30 +247,55 @@
                 p.line(chartX, y, chartX + chartW, y);
             }
             
-            // Draw all asset lines
+            // Draw all asset lines (each normalized to its own scale)
             for (var i = 0; i < this.assets.length; i++) {
                 this.drawLineChart(p, chartX, chartY, chartW, chartH, this.assets[i]);
             }
             
-            // Legend
-            var legendX = chartX + 20;
+            // Legend - moved to right side, non-overlapping
+            var legendX = chartX + chartW + 20;
             var legendY = chartY + 20;
+            p.textStyle(p.BOLD);
+            p.fill(0);
+            p.textAlign(p.LEFT, p.TOP);
+            p.textSize(12);
+            p.text('ASSETS:', legendX, legendY - 15);
+            
+            p.textStyle(p.NORMAL);
             for (var i = 0; i < this.assets.length; i++) {
                 var a = this.assets[i];
+                var itemY = legendY + i * 28;
+                
+                // Color indicator
                 p.fill(a.color);
                 p.noStroke();
-                p.circle(legendX, legendY + i * 25, 10);
+                p.circle(legendX + 5, itemY + 7, 10);
+                
+                // Asset name
                 p.fill(0);
-                p.textAlign(p.LEFT, p.CENTER);
-                p.textSize(14);
-                p.textStyle(p.NORMAL);
-                p.text(a.name, legendX + 15, legendY + i * 25);
+                p.textAlign(p.LEFT, p.TOP);
+                p.textSize(13);
+                p.text(a.name, legendX + 20, itemY);
+                
+                // Current price
+                if (a.data && a.data.length > 0) {
+                    var currentPrice = a.data[Math.min(this.currentIndex, a.data.length - 1)].price;
+                    p.fill(100);
+                    p.textSize(11);
+                    p.text('$' + currentPrice.toFixed(2), legendX + 20, itemY + 14);
+                }
             }
+            
+            // Note about normalized scales
+            p.fill(120);
+            p.textSize(10);
+            p.textAlign(p.LEFT, p.TOP);
+            p.textStyle(p.ITALIC);
+            p.text('* Each asset scaled', legendX, legendY + this.assets.length * 28 + 10);
+            p.text('to show trends', legendX, legendY + this.assets.length * 28 + 22);
             
             // Controls
             this.drawControls(p, manager);
-            // Ensure a DOM play/pause button exists so clicks reliably control playback
-            this.ensureDOMControls(manager);
             
             p.pop();
         }

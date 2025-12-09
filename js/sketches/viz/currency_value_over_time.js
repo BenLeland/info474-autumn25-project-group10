@@ -5,31 +5,36 @@
                 name: 'Bitcoin', 
                 data: [], 
                 hasData: false,
-                scale: 20000
+                scale: 20000,
+                color: '#F7931A'
             },
             sp500: { 
                 name: 'S&P 500', 
                 data: [], 
                 hasData: false,
-                scale: 650
+                scale: 650,
+                color: '#4169E1'
             },
             gold: { 
                 name: 'Gold', 
                 data: [], 
                 hasData: false,
-                scale: 130
+                scale: 130,
+                color: '#FFD700'
             },
             oil: { 
                 name: 'Oil',  
                 data: [], 
                 hasData: false,
-                scale: 20
+                scale: 20,
+                color: '#2C2C2C'
             },
             usd: { 
                 name: 'USD Index',  
                 data: [], 
                 hasData: false,
-                scale: 5
+                scale: 5,
+                color: '#2ECC71'
             }
         },
 
@@ -130,6 +135,17 @@
                 return;
             }
 
+            // Title
+            p.fill(0);
+            p.noStroke();
+            p.textAlign(p.CENTER, p.TOP);
+            p.textSize(24);
+            p.textStyle(p.BOLD);
+            p.text('Monthly Price Changes', manager.canvasWidth / 2, 20);
+            p.textSize(13);
+            p.textStyle(p.NORMAL);
+            p.fill(80);
+            p.text('Select an asset to compare monthly volatility', manager.canvasWidth / 2, 52);
             
             this.drawTimeLine(p, manager);
             this.drawTimeTicks(p, manager);
@@ -209,31 +225,61 @@
             }
         },
 
-        drawDropDown: function(p, manager) {   
-            // Draw dropdown box
-            p.fill(255);
-            p.stroke(0);
-            p.strokeWeight(1);
-            p.rect(this.dropdownX, this.dropdownY, 200, 30);
+        drawDropDown: function(p, manager) {
+            var asset = this.assets[this.selectedAsset];
+            
+            // Draw dropdown button with hover state
+            var isHovered = p.mouseX > this.dropdownX && p.mouseX < this.dropdownX + this.dropdownW &&
+                           p.mouseY > this.dropdownY && p.mouseY < this.dropdownY + this.dropdownH;
+            
+            // Button background
+            p.fill(isHovered ? 240 : 255);
+            p.stroke(asset.color);
+            p.strokeWeight(2);
+            p.rect(this.dropdownX, this.dropdownY, 200, 30, 5);
+            
+            // Icon hint
+            p.fill(asset.color);
+            p.noStroke();
+            p.textAlign(p.RIGHT, p.CENTER);
+            p.textSize(16);
+            p.text(this.dropdownOpen ? '▲' : '▼', this.dropdownX + this.dropdownW - 10, this.dropdownY + this.dropdownH/2);
 
-            // Selected text
+            // Selected text with asset color
             p.fill(0);
             p.textAlign(p.LEFT, p.CENTER);
-            p.textSize(16);
-            p.strokeWeight(1);
-            p.text(this.assets[this.selectedAsset].name, this.dropdownX + 10, this.dropdownY + this.dropdownH/2);
+            p.textSize(15);
+            p.textStyle(p.BOLD);
+            p.text(asset.name, this.dropdownX + 10, this.dropdownY + this.dropdownH/2);
+            
+            // Interaction hint
+            if (!this.dropdownOpen) {
+                p.fill(120);
+                p.textSize(10);
+                p.textStyle(p.NORMAL);
+                p.textAlign(p.CENTER, p.TOP);
+                p.text('Click to select different asset', this.dropdownX + this.dropdownW/2, this.dropdownY + this.dropdownH + 5);
+            }
+            
+            p.textStyle(p.NORMAL);
 
             if (this.dropdownOpen) {
                 for (let i = 0; i < this.assetKeys.length; i++) {
+                    let key = this.assetKeys[i];
                     let y = this.dropdownY + this.dropdownH * (i + 1);
+                    let itemHovered = p.mouseX > this.dropdownX && p.mouseX < this.dropdownX + this.dropdownW &&
+                                     p.mouseY > y && p.mouseY < y + this.dropdownH;
 
-                    p.fill(240);
+                    p.fill(itemHovered ? 220 : 250);
+                    p.stroke(this.assets[key].color);
                     p.strokeWeight(1);
                     p.rect(this.dropdownX, y, this.dropdownW, this.dropdownH);
 
                     p.fill(0);
-                    p.strokeWeight(1);
-                    p.text(this.assets[this.assetKeys[i]].name, this.dropdownX + 10, y + this.dropdownH/2);
+                    p.noStroke();
+                    p.textAlign(p.LEFT, p.CENTER);
+                    p.textSize(14);
+                    p.text(this.assets[key].name, this.dropdownX + 10, y + this.dropdownH/2);
                 }
             }
 

@@ -207,18 +207,22 @@
             var totalHeight = cellSize * matrixSize;
             
             var startX = (manager.canvasWidth - totalWidth) / 2;
-            var startY = 80;
+            var startY = 120; // Increased from 80 to prevent title overlap
             
             // Title
             p.fill(0);
             p.noStroke();
             p.textAlign(p.CENTER, p.TOP);
-            p.textSize(20);
+            p.textSize(24);
             p.textStyle(p.BOLD);
             p.text('Asset Correlation Matrix', manager.canvasWidth / 2, 20);
-            p.textSize(14);
+            p.textSize(13);
             p.textStyle(p.NORMAL);
-            p.text('(12-year monthly returns)', manager.canvasWidth / 2, 48);
+            p.fill(80);
+            p.text('12-year monthly returns (2013-2025)', manager.canvasWidth / 2, 52);
+            p.textSize(12);
+            p.fill(100);
+            p.text('Blue = move together  •  Red = move opposite  •  Darker = stronger', manager.canvasWidth / 2, 72);
             
             this.hoveredCell = null;
             
@@ -243,31 +247,35 @@
                         };
                     }
                     
-                    // Draw cell background with asset colors
-                    var cellColor = this.getCellColor(i, j, corr);
-                    
+                    // Draw cell background with simple color scale
                     if (i === j) {
-                        // Diagonal - use asset color at 40% opacity
-                        p.fill(cellColor.r, cellColor.g, cellColor.b, 100);
+                        // Diagonal - light grey
+                        p.fill(220);
                     } else {
-                        // Off-diagonal - blend asset colors with opacity based on correlation strength
-                        var alpha = Math.abs(corr) * 200 + 55; // min 55, max 255
-                        p.fill(cellColor.r, cellColor.g, cellColor.b, alpha);
+                        // Off-diagonal - blue for positive, red for negative, intensity based on strength
+                        var strength = Math.abs(corr);
+                        if (corr >= 0) {
+                            // Positive correlation: white to blue
+                            var blueIntensity = Math.floor(strength * 180) + 75; // Range: 75-255
+                            p.fill(255 - blueIntensity, 255 - blueIntensity, 255);
+                        } else {
+                            // Negative correlation: white to red
+                            var redIntensity = Math.floor(strength * 180) + 75; // Range: 75-255
+                            p.fill(255, 255 - redIntensity, 255 - redIntensity);
+                        }
                     }
                     
                     p.stroke(255);
                     p.strokeWeight(2);
                     p.rect(x, y, cellSize, cellSize);
                     
-                    // Draw correlation value with contrast
+                    // Draw correlation value
                     if (i === j) {
                         p.fill(100); // Dark grey for diagonal
                     } else {
-                        // White text for darker cells, black for lighter cells
-                        var brightness = (cellColor.r * 0.299 + cellColor.g * 0.587 + cellColor.b * 0.114);
-                        var alpha = Math.abs(corr) * 200 + 55;
-                        var adjustedBrightness = brightness * (alpha / 255);
-                        p.fill(adjustedBrightness > 128 ? 0 : 255);
+                        // Dark text for light cells, light text for dark cells
+                        var strength = Math.abs(corr);
+                        p.fill(strength > 0.6 ? 255 : 0);
                     }
                     p.noStroke();
                     p.textAlign(p.CENTER, p.CENTER);
@@ -297,15 +305,6 @@
                 p.textAlign(p.RIGHT, p.CENTER);
                 p.text(this.assets[this.assetKeys[i]].name, x, y);
             }
-            
-            // Legend
-            var legendY = startY + totalHeight + 40;
-            p.textAlign(p.CENTER, p.TOP);
-            p.textSize(13);
-            p.textStyle(p.ITALIC);
-            p.fill(0);
-            p.text('Blue = Positive Correlation  |  Red = Negative Correlation  |  Darker = Stronger', 
-                   manager.canvasWidth / 2, legendY);
             
             // Hover tooltip
             if (this.hoveredCell && this.hoveredCell.i !== this.hoveredCell.j) {

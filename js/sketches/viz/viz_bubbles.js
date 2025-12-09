@@ -185,8 +185,8 @@
 
         positionBubbles: function(manager) {
             var centerX = manager.canvasWidth / 2;
-            var centerY = (manager.canvasHeight / 2) - 40; // Moved up 60px for more space
-            var radius = 200;
+            var centerY = (manager.canvasHeight / 2) + 10; // Centered with more space
+            var radius = 180; // Reduced radius so bubbles fit better
             
             var keys = Object.keys(this.assets);
             var angleStep = (2 * Math.PI) / keys.length;
@@ -358,12 +358,21 @@
                 p.text(this.formatDate(this.latestDate), sliderX + sliderWidth, sliderY + 20);
             }
             
-            // Current date
-            p.textAlign(p.CENTER, p.TOP);
-            p.textSize(16);
-            p.fill(255);
+            // Current date - with background for visibility
             if (this.allDates[this.currentIndex]) {
-                p.text(this.formatDate(this.allDates[this.currentIndex]), manager.canvasWidth / 2, sliderY + 20);
+                var dateText = this.formatDate(this.allDates[this.currentIndex]);
+                p.textSize(16);
+                var textW = p.textWidth(dateText);
+                
+                // Dark background box
+                p.fill(0, 0, 0, 180);
+                p.noStroke();
+                p.rect(manager.canvasWidth / 2 - textW / 2 - 10, sliderY + 15, textW + 20, 25, 5);
+                
+                // White text
+                p.fill(255);
+                p.textAlign(p.CENTER, p.TOP);
+                p.text(dateText, manager.canvasWidth / 2, sliderY + 20);
             }
             
             // Event markers
@@ -408,18 +417,37 @@
                 p.triangle(buttonX - 4, buttonY - 7, buttonX - 4, buttonY + 7, buttonX + 6, buttonY);
             }
             
-            // Asset toggles
+            // Asset toggles with header
             var toggleStartY = 30;
             var toggleSpacing = 35;
+            var toggleX = manager.canvasWidth - 140;
             var self = this;
+            
+            // Header to clarify these are interactive controls
+            p.fill(200);
+            p.noStroke();
+            p.textAlign(p.LEFT, p.TOP);
+            p.textSize(11);
+            p.textStyle(p.BOLD);
+            p.text('FILTER ASSETS:', toggleX, toggleStartY - 20);
             
             p.textAlign(p.LEFT, p.CENTER);
             p.textSize(14);
+            p.textStyle(p.NORMAL);
             
             Object.keys(this.assets).forEach(function(key, i) {
                 var asset = self.assets[key];
-                var toggleX = manager.canvasWidth - 130;
                 var toggleY = toggleStartY + i * toggleSpacing;
+                
+                // Hover effect
+                var isHovered = p.mouseX >= toggleX - 5 && p.mouseX <= toggleX + 120 &&
+                                p.mouseY >= toggleY - 12 && p.mouseY <= toggleY + 12;
+                
+                if (isHovered) {
+                    p.fill(255, 255, 255, 20);
+                    p.noStroke();
+                    p.rect(toggleX - 5, toggleY - 12, 125, 24, 3);
+                }
                 
                 // Checkbox
                 p.stroke(asset.color);
@@ -430,6 +458,15 @@
                     p.noFill();
                 }
                 p.rect(toggleX, toggleY - 8, 16, 16, 3);
+                
+                // Checkmark when enabled
+                if (asset.enabled) {
+                    p.stroke(255);
+                    p.strokeWeight(2);
+                    p.noFill();
+                    p.line(toggleX + 3, toggleY, toggleX + 6, toggleY + 4);
+                    p.line(toggleX + 6, toggleY + 4, toggleX + 13, toggleY - 5);
+                }
                 
                 // Label
                 p.fill(asset.enabled ? 255 : 150);
@@ -536,11 +573,11 @@
             // Check asset toggles
             var toggleStartY = 30;
             var toggleSpacing = 35;
+            var toggleX = manager.canvasWidth - 140;
             var self = this;
             
             var toggled = false;
             Object.keys(this.assets).forEach(function(key, i) {
-                var toggleX = manager.canvasWidth - 130;
                 var toggleY = toggleStartY + i * toggleSpacing;
                 
                 if (p.mouseX >= toggleX && p.mouseX <= toggleX + 16 &&

@@ -167,38 +167,109 @@
             var xForIndex = function(i){ return chartX + (i / Math.max(1, n-1)) * chartW; };
             var yForPrice = function(price){ return chartY + chartH - ((price - minP) / (maxP - minP)) * chartH; };
 
-            // draw grid
-            p.stroke(220); p.strokeWeight(1);
-            for (var gy=0; gy<=4; gy++){ var yy = chartY + (gy/4)*chartH; p.line(chartX, yy, chartX+chartW, yy); }
+            // draw grid and axes
+            p.stroke(220); 
+            p.strokeWeight(1);
+            for (var gy=0; gy<=4; gy++){ 
+                var yy = chartY + (gy/4)*chartH; 
+                p.line(chartX, yy, chartX+chartW, yy); 
+            }
+            
+            // Y-axis labels with price range
+            p.noStroke();
+            p.fill(80);
+            p.textAlign(p.RIGHT, p.CENTER);
+            p.textSize(11);
+            for (var gy=0; gy<=4; gy++){
+                var yy = chartY + (gy/4)*chartH;
+                var priceVal = maxP - (gy/4) * (maxP - minP);
+                p.text('$' + priceVal.toFixed(0), chartX - 10, yy);
+            }
+            
+            // X-axis labels (start and end dates)
+            p.textAlign(p.CENTER, p.TOP);
+            p.textSize(11);
+            var startDate = this.allDates[0];
+            var endDate = this.allDates[this.allDates.length - 1];
+            p.text(this.formatDate(startDate), chartX, chartY + chartH + 5);
+            p.text(this.formatDate(endDate), chartX + chartW, chartY + chartH + 5);
 
             // draw lines for each enabled asset
-            keys.forEach(function(k){ var asset = self.assets[k]; if (!self.enabled[k]) return; p.noFill(); p.stroke(asset.color); p.strokeWeight(2); p.beginShape();
-                for (var i=0;i<asset.data.length;i++){ var idx = self.allDates.indexOf(asset.data[i].date); if (idx<0) {
-                    // find index by time
-                    for (var j=0;j<self.allDates.length;j++){ if (self.allDates[j].getTime()===asset.data[i].date.getTime()){ idx=j; break; } }
+            keys.forEach(function(k){ 
+                var asset = self.assets[k]; 
+                if (!self.enabled[k]) return; 
+                
+                p.noFill(); 
+                p.stroke(asset.color); 
+                
+                // Increase stroke weight for oil to make it more visible
+                if (k === 'oil') {
+                    p.strokeWeight(3);
+                } else {
+                    p.strokeWeight(2);
                 }
-                    var x = xForIndex(idx>=0?idx:0); var y = yForPrice(asset.data[i].price); p.vertex(x,y);
+                
+                p.beginShape();
+                for (var i=0;i<asset.data.length;i++){ 
+                    var idx = self.allDates.indexOf(asset.data[i].date); 
+                    if (idx<0) {
+                        // find index by time
+                        for (var j=0;j<self.allDates.length;j++){ 
+                            if (self.allDates[j].getTime()===asset.data[i].date.getTime()){ 
+                                idx=j; 
+                                break; 
+                            } 
+                        }
+                    }
+                    var x = xForIndex(idx>=0?idx:0); 
+                    var y = yForPrice(asset.data[i].price); 
+                    p.vertex(x,y);
                 }
                 p.endShape();
+                
+                // Add circular markers for oil line to make it more visible
+                if (k === 'oil') {
+                    p.fill(asset.color);
+                    for (var i=0;i<asset.data.length;i+=20){ // Every 20th point for clarity
+                        var idx = self.allDates.indexOf(asset.data[i].date); 
+                        if (idx<0) {
+                            for (var j=0;j<self.allDates.length;j++){ 
+                                if (self.allDates[j].getTime()===asset.data[i].date.getTime()){ 
+                                    idx=j; 
+                                    break; 
+                                } 
+                            }
+                        }
+                        var x = xForIndex(idx>=0?idx:0); 
+                        var y = yForPrice(asset.data[i].price);
+                        p.circle(x, y, 5);
+                    }
+                }
             });
 
-            // draw event markers (vertical lines + labels)
+            // draw event markers (vertical lines, no overlapping labels)
             if (this.eventIndices && this.eventIndices.length){
-                p.textAlign(p.CENTER, p.BOTTOM);
-                p.textSize(12);
+                p.textSize(11);
+                p.textStyle(p.BOLD);
                 for (var ei=0; ei<this.eventIndices.length; ei++){
-                    var idx = this.eventIndices[ei]; if (idx < 0 || idx >= this.allDates.length) continue;
+                    var idx = this.eventIndices[ei]; 
+                    if (idx < 0 || idx >= this.allDates.length) continue;
                     var ex = xForIndex(idx);
                     var ev = this.events[ei];
+                    
+                    // Draw vertical line
                     p.stroke(ev.color);
                     p.strokeWeight(2);
                     p.line(ex, chartY, ex, chartY + chartH);
+                    
+                    // Draw label with staggered heights to avoid overlap
                     p.noStroke();
                     p.fill(ev.color);
-                    // label above the chart
-                    var labelY = chartY - 8;
+                    var labelY = chartY - 12 - (ei % 2) * 20; // Stagger labels
+                    p.textAlign(p.CENTER, p.BOTTOM);
                     p.text(ev.label, ex, labelY);
                 }
+                p.textStyle(p.NORMAL);
             }
 
             // Draw slider
@@ -212,18 +283,38 @@
             var buttonX = chartX - 60; var buttonY = sliderY + 5; p.noStroke(); p.fill(100,150,255); p.circle(buttonX, buttonY, 30);
             p.fill(255); if (this.isPlaying){ p.rect(buttonX-5, buttonY-7, 3, 14); p.rect(buttonX+2, buttonY-7, 3, 14); } else { p.triangle(buttonX-6, buttonY-8, buttonX-6, buttonY+8, buttonX+6, buttonY); }
 
-            // toggles
-            var toggleStartY = 30; p.textAlign(p.LEFT, p.CENTER); p.textSize(12);
-            for (var i=0;i<keys.length;i++){ var ty = toggleStartY + i*35; var key = keys[i]; var asset = this.assets[key]; p.stroke(asset.color); p.strokeWeight(2); if (this.enabled[key]) p.fill(asset.color); else p.noFill(); p.rect(chartX + chartW + 20, ty-8, 16, 16, 3); p.noStroke(); p.fill(this.enabled[key]?255:120); p.text(asset.name, chartX + chartW + 46, ty); }
+            // toggles (right side - already sufficient, no need for duplicate info)
+            var toggleStartY = 30; 
+            p.textAlign(p.LEFT, p.CENTER); 
+            p.textSize(13);
+            for (var i=0;i<keys.length;i++){ 
+                var ty = toggleStartY + i*35; 
+                var key = keys[i]; 
+                var asset = this.assets[key]; 
+                
+                // Checkbox
+                p.stroke(asset.color); 
+                p.strokeWeight(2); 
+                if (this.enabled[key]) {
+                    p.fill(asset.color);
+                } else {
+                    p.noFill();
+                }
+                p.rect(chartX + chartW + 20, ty-8, 16, 16, 3); 
+                
+                // Asset name
+                p.noStroke(); 
+                p.fill(this.enabled[key]?255:120); 
+                p.text(asset.name, chartX + chartW + 46, ty); 
+            }
 
             // date label
-            p.noStroke(); p.fill(0); p.textAlign(p.CENTER, p.TOP); p.textSize(14);
-            var curDate = this.allDates[this.currentIndex]; p.text(this.formatDate(curDate), chartX + chartW/2, sliderY + 20);
-
-            // tooltip: show prices at current index
-            var prices = this.getPricesAtIndex(this.currentIndex);
-            var infoX = chartX + chartW + 20; var infoY = toggleStartY + keys.length*35 + 20; p.textAlign(p.LEFT, p.TOP); p.textSize(12);
-            var iy = infoY; Object.keys(prices).forEach(function(k){ var pr = prices[k]; if (!pr) return; p.fill(self.assets[k].color); p.text(self.assets[k].name + ': $' + (pr.price?pr.price.toLocaleString(): 'n/a'), infoX, iy); iy += 18; });
+            p.noStroke(); 
+            p.fill(0); 
+            p.textAlign(p.CENTER, p.TOP); 
+            p.textSize(14);
+            var curDate = this.allDates[this.currentIndex]; 
+            p.text(this.formatDate(curDate), chartX + chartW/2, sliderY + 20);
 
             // advance time if playing
             if (this.isPlaying){ this.currentIndex += this.playSpeed; if (this.currentIndex >= this.allDates.length) { this.currentIndex = this.allDates.length-1; this.isPlaying = false; } }
