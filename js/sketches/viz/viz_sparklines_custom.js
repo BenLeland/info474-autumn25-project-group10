@@ -33,13 +33,16 @@
         },
 
         handleMousePressed: function(p, manager){
-            console.log('VizSparklinesCustom: handleMousePressed', { mouseX: p.mouseX, mouseY: p.mouseY, isPlaying: this.isPlaying, currentIndex: this.currentIndex, maxIndex: this.maxIndex });
+            console.log('VizSparklinesCustom: handleMousePressed called', { mouseX: p.mouseX, mouseY: p.mouseY, isPlaying: this.isPlaying, currentIndex: this.currentIndex, maxIndex: this.maxIndex });
             // Check play/pause button
             var buttonX = 50;
             var buttonY = manager.canvasHeight - 60;
             var buttonSize = 40;
 
-            if (p.dist(p.mouseX, p.mouseY, buttonX, buttonY) < buttonSize / 2 + 5) {
+            var dist = p.dist(p.mouseX, p.mouseY, buttonX, buttonY);
+            console.log('VizSparklinesCustom: button check', { buttonX: buttonX, buttonY: buttonY, dist: dist, threshold: buttonSize / 2 + 5 });
+            
+            if (dist < buttonSize / 2 + 5) {
                 // When the user presses Play, always start playback from 0.
                 // If currently paused, pressing the button will reset to 0 and start playing.
                 if (!this.isPlaying) {

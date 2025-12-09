@@ -235,6 +235,9 @@
         draw: function (p, manager, ai, progress) {
             var self = this;
             
+            // Clear background to prevent other visualizations from showing
+            p.background(255);
+            
             // Initialize if needed
             if (!this.dataLoaded) {
                 this.init(p, manager);
