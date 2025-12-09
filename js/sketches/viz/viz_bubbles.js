@@ -209,7 +209,8 @@
         updateBubbleSizes: function() {
             if (!this.dataLoaded || this.allDates.length === 0) return;
             
-            var currentDate = this.allDates[this.currentIndex];
+            var currentIdx = Math.floor(this.currentIndex);
+            var currentDate = this.allDates[currentIdx];
             if (!currentDate) return;
             
             var self = this;
@@ -493,12 +494,13 @@
         },
 
         drawInfoPanel: function(p, manager) {
-            if (!this.allDates[this.currentIndex]) return;
+            var currentIdx = Math.floor(this.currentIndex);
+            if (!this.allDates[currentIdx]) return;
             
             var self = this;
             this.events.forEach(function(event) {
                 var eventDate = self.parseDate(event.date);
-                var daysDiff = Math.abs((self.allDates[self.currentIndex] - eventDate) / (1000 * 60 * 60 * 24));
+                var daysDiff = Math.abs((self.allDates[currentIdx] - eventDate) / (1000 * 60 * 60 * 24));
                 
                 if (daysDiff < 7) {
                     p.fill(0, 0, 0, 200);
