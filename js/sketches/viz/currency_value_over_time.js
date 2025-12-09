@@ -134,8 +134,9 @@
             this.drawTimeLine(p, manager);
             this.drawTimeTicks(p, manager);
             this.drawBars(p, manager);
-            this.drawEvents(p, manager);
             this.drawDropDown(p, manager);
+            this.drawTitle(p, manager);
+            this.drawScale(p, manager);
         },
 
         drawTimeLine: function(p, manager) {
@@ -180,10 +181,10 @@
 
             p.strokeWeight(0);
             p.textSize(15);
-            p.text("Jan,", manager.canvasWidth / 2 - 590, manager.canvasHeight / 2 - 10)
-            p.text("2013", manager.canvasWidth / 2 - 593, manager.canvasHeight / 2 + 10)
-            p.text("Nov,", manager.canvasWidth / 2 + 357, manager.canvasHeight / 2 - 10)
-            p.text("2025", manager.canvasWidth / 2 + 355, manager.canvasHeight / 2 + 10)
+            p.text("Jan,", manager.canvasWidth / 2 - 575, manager.canvasHeight / 2 - 10)
+            p.text("2013", manager.canvasWidth / 2 - 575, manager.canvasHeight / 2 + 10)
+            p.text("Nov,", manager.canvasWidth / 2 + 372, manager.canvasHeight / 2 - 10)
+            p.text("2025", manager.canvasWidth / 2 + 372, manager.canvasHeight / 2 + 10)
         },
 
         drawBars: function(p, manager) {
@@ -265,9 +266,25 @@
             };
         },
 
-        drawEvents: function(p, manager) {
-            // Event markers removed - they were non-functional and potentially confusing
-            // Consider adding interactive event markers in a future update
+        drawTitle: function(p, manager) {
+            p.fill(0);
+            p.textAlign(p.CENTER, p.CENTER);
+            p.textSize(24);
+            p.text('Asset Change Over Time', manager.canvasWidth / 2 - 100, 40);
+        },
+
+        drawScale: function(p, manager) {
+            p.strokeWeight(1);
+            p.stroke(0);
+            p.line(manager.canvasWidth / 2 - 150 - 100, manager.canvasHeight / 2 + 295, manager.canvasWidth / 2 + 150 - 100, manager.canvasHeight / 2 + 295);
+            p.line(manager.canvasWidth / 2 - 150 - 100, manager.canvasHeight / 2 + 290, manager.canvasWidth / 2 - 150 - 100, manager.canvasHeight / 2 + 300);
+            p.line(manager.canvasWidth / 2 + 150 - 100, manager.canvasHeight / 2 + 290, manager.canvasWidth / 2 + 150 - 100, manager.canvasHeight / 2 + 300);
+
+            p.textAlign(p.CENTER, p.CENTER);
+            p.fill(0);
+            p.strokeWeight(0);
+            p.textSize(12);
+            p.text('Scale: ' + this.assets[this.selectedAsset].scale + ' USD', manager.canvasWidth / 2 - 100, manager.canvasHeight / 2 + 280);
         }
     }
 })();
