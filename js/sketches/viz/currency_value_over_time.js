@@ -5,31 +5,36 @@
                 name: 'Bitcoin', 
                 data: [], 
                 hasData: false,
-                scale: 20000
+                scale: 20000,
+                color: '#F7931A'
             },
             sp500: { 
                 name: 'S&P 500', 
                 data: [], 
                 hasData: false,
-                scale: 650
+                scale: 650,
+                color: '#4169E1'
             },
             gold: { 
                 name: 'Gold', 
                 data: [], 
                 hasData: false,
-                scale: 300
+                scale: 300,
+                color: '#FFD700'
             },
             oil: { 
                 name: 'Oil',  
                 data: [], 
                 hasData: false,
-                scale: 20
+                scale: 20,
+                color: '#2C2C2C',
             },
             usd: { 
                 name: 'USD Index',  
                 data: [], 
                 hasData: false,
-                scale: 5
+                scale: 5,
+                color: '#2ECC71',
             }
         },
 
@@ -135,10 +140,10 @@
             
             this.drawTimeLine(p, manager);
             this.drawTimeTicks(p, manager);
+            this.drawScale(p, manager);
             this.drawBars(p, manager);
             this.drawDropDown(p, manager);
             this.drawTitle(p, manager);
-            this.drawScale(p, manager);
         },
 
         drawTimeLine: function(p, manager) {
@@ -237,14 +242,14 @@
                     p.stroke(180);
                     p.strokeWeight(3);
                 } else {
-                    p.stroke(change >= 0 ? 'green' : 'red');
+                    p.stroke(change >= 0 ? this.assets[this.selectedAsset].color : 'red');
                     p.strokeWeight(isHovered ? 6 : 4);
                 }
 
                 p.line(midX, y, midX, y - barLength * Math.sign(change));
 
             }
-            
+
             if (this.hoverIndex !== -1) {
                 const priceNow = data[this.hoverIndex].price;
                 const priceNext = data[this.hoverIndex + 1].price;
@@ -255,7 +260,7 @@
                 const scaleStart = manager.canvasWidth / 2 - 250;
                 const scaleY = manager.canvasHeight / 2 + 250;
 
-                p.stroke(change >= 0 ? 'green' : 'red');
+                p.stroke(change >= 0 ? this.assets[this.selectedAsset].color : 'red');
                 p.strokeWeight(6);
 
                 // Draw horizontal bar ON the scale
